@@ -16,6 +16,7 @@ import timber.log.Timber
 class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
+    private val adapter = KittensAdapter()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -44,6 +45,7 @@ class MainFragment : Fragment() {
         with(viewModel) {
             kittens.observe(viewLifecycleOwner, Observer {
                 Timber.d(it.toString())
+                //adapter.submitList(pagedList)
             })
         }
     }
