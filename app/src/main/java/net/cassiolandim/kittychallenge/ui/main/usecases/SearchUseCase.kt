@@ -12,10 +12,15 @@ class SearchUseCase @Inject constructor(
     data class Params(val page: Int)
 
     override suspend fun run(params: Params) : List<KittenUiModel> {
-       return kittensRepository.search(params.page).map {
+        return kittensRepository.search(params.page).map { kitten ->
+            val favorite = kittensRepository.favoritesCache.find {
+                it.imageId == kitten.id
+            }
             KittenUiModel(
-                id = it.id,
-                url = it.url
+                id = kitten.id,
+                url = kitten.url,
+                isFavorite = favorite != null,
+                favoriteId = favorite?.id
             )
         }
     }

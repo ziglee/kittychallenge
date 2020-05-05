@@ -9,27 +9,53 @@
             type="net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel" />
     </data>
 
-    <LinearLayout
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <FrameLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card"
+        <ImageView
+            android:id="@+id/image"
+            android:scaleType="centerCrop"
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="300dp" />
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_gravity="bottom"
-                android:layout_margin="20dp"
-                android:textColor="@color/black"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@{model.id}"
-                tools:text="Test" />
+        <TextView
+            android:background="@color/black20"
+            android:padding="8dp"
+            android:layout_gravity="bottom"
+            android:textColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{model.url}"
+            android:ellipsize="end"
+            android:textSize="12sp"
+            tools:text="Test" />
 
-        </androidx.cardview.widget.CardView>
+        <RelativeLayout
+            android:id="@+id/favoriteLayout"
+            android:layout_gravity="end"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/bkg_favorite_button"
+            android:foreground="?attr/selectableItemBackground">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/favoriteIcon"
+                android:layout_centerInParent="true"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_star_outline_black"
+                android:tint="@color/black"/>
+
+        </RelativeLayout>
+
+    </FrameLayout>
 
 </layout>

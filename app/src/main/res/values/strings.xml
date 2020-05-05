@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Kitty Challenge</string>
+    <string name="error">An error occurred</string>
+    <string name="images_folder">images</string>
 </resources>

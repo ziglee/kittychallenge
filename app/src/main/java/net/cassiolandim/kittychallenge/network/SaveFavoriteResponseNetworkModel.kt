@@ -1,6 +1,6 @@
 package net.cassiolandim.kittychallenge.network
 
-data class KittensNetworkModel(
+data class SaveFavoriteResponseNetworkModel(
     val id: String,
-    val url: String
+    val message: String
 )
