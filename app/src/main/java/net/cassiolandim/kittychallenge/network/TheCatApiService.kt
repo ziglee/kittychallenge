@@ -10,10 +10,10 @@ interface TheCatApiService {
         const val API_ENDPOINT = "https://api.thecatapi.com/v1/images/"
     }
 
-    @GET("/search")
+    @GET("search")
     suspend fun search(
-        @Query("limit") limit: Int,
         @Query("page") page: Int,
+        @Query("limit") limit: Int = 30,
         @Query("order") order: String = "Desc"
-    ): List<KittenNetworkModel>
+    ): List<KittensNetworkModel>
 }

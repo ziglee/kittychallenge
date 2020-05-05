@@ -6,13 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dagger.BindsInstance
 import dagger.Component
+import net.cassiolandim.kittychallenge.MyApplication
 import net.cassiolandim.kittychallenge.ui.main.MainViewModel
 import javax.inject.Singleton
 
 @Singleton
 @Component(
     modules = [
-        NetworkModule::class
+        NetworkModule::class,
+        KittensModule::class
     ]
 )
 interface AppComponent {
@@ -36,4 +38,9 @@ inline fun <reified T : ViewModel> Fragment.createFragmentViewModel(crossinline 
                 throw IllegalArgumentException("Unexpected argument: $modelClass")
             }
         }).get(clazz)
+    }
+
+fun Fragment.createMainViewModel() =
+    createFragmentViewModel {
+        (requireActivity().application as MyApplication).appComponent.mainViewModel
     }
