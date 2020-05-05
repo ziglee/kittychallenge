@@ -45,7 +45,7 @@ class MainFragment : Fragment() {
         with(viewModel) {
             kittens.observe(viewLifecycleOwner, Observer {
                 Timber.d(it.toString())
-                //adapter.submitList(pagedList)
+                adapter.submitList(it)
             })
         }
     }

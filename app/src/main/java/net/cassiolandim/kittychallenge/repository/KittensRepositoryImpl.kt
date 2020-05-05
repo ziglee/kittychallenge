@@ -8,7 +8,7 @@ class KittensRepositoryImpl @Inject constructor(
     private val theCatApiService: TheCatApiService
 ) : KittensRepository {
 
-    override suspend fun search(page: Int): List<KittenDomainModel> {
+    override fun search(page: Int): List<KittenDomainModel> {
         return theCatApiService.search(page).map {
             KittenDomainModel(
                 id = it.id,

@@ -4,5 +4,5 @@ import net.cassiolandim.kittychallenge.di.KittenDomainModel
 
 interface KittensRepository {
 
-    suspend fun search(page: Int): List<KittenDomainModel>
+    fun search(page: Int): List<KittenDomainModel>
 }

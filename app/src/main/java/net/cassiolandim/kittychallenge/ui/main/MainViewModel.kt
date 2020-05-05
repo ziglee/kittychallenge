@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagedList
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 import net.cassiolandim.kittychallenge.ui.main.usecases.SearchUseCase
 import timber.log.Timber
@@ -13,8 +14,8 @@ class MainViewModel @Inject constructor(
     private val searchUseCase: SearchUseCase
 ) : ViewModel() {
 
-    private val _kittens = MutableLiveData<List<KittenUiModel>>()
-    val kittens: LiveData<List<KittenUiModel>> = _kittens
+    private val _kittens = MutableLiveData<PagedList<KittenUiModel>>()
+    val kittens: LiveData<PagedList<KittenUiModel>> = _kittens
 
     fun search(page: Int) {
         searchUseCase(

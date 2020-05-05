@@ -1,5 +1,6 @@
 package net.cassiolandim.kittychallenge.network
 
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -11,9 +12,9 @@ interface TheCatApiService {
     }
 
     @GET("search")
-    suspend fun search(
+    fun search(
         @Query("page") page: Int,
         @Query("limit") limit: Int = 30,
         @Query("order") order: String = "Desc"
-    ): List<KittensNetworkModel>
+    ): Call<List<KittensNetworkModel>>
 }
