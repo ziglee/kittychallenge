@@ -3,4 +3,5 @@
     <string name="favorites">Favorites</string>
     <string name="error">An error occurred</string>
     <string name="images_folder">images</string>
+    <string name="favorites_empty_message">Add favorite images from home screen</string>
 </resources>

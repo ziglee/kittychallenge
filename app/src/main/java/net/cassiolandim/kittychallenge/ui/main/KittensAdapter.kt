@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.RowItemBinding
 import net.cassiolandim.kittychallenge.getOutputDirectory
@@ -55,6 +56,8 @@ class KittenViewHolder(
             if (file.exists()) {
                 Glide.with(binding.image)
                     .load(file)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
                     .placeholder(R.drawable.img_cat_placeholder)
                     .into(binding.image)
             } else {

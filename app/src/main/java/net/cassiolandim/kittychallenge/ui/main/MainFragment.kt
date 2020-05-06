@@ -98,10 +98,8 @@ class MainFragment : Fragment() {
                 }
                 if (indexOf >= 0) {
                     with(kittenList[indexOf]) {
-                        isFavorite = true
                         favoriteId = it.id
                     }
-                    adapter.notifyItemChanged(indexOf)
                 }
             })
         }

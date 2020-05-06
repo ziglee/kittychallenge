@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.FavoriteItemBinding
 import net.cassiolandim.kittychallenge.getOutputDirectory
@@ -13,6 +14,8 @@ import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
 import java.io.File
 
 class FavoritesAdapter : ListAdapter<FavoriteUiModel, KittenViewHolder>(DIFF_CALLBACK) {
+
+    private var currentList : List<FavoriteUiModel>? = null
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FavoriteUiModel>() {
@@ -33,6 +36,19 @@ class FavoritesAdapter : ListAdapter<FavoriteUiModel, KittenViewHolder>(DIFF_CAL
         val model: FavoriteUiModel = getItem(position)
         holder.bindTo(model)
     }
+
+    override fun submitList(list: List<FavoriteUiModel>?) {
+        super.submitList(list)
+        currentList = list
+    }
+
+    fun notifyItemChangedByFavoriteId(favoriteId: String) {
+        currentList?.let { list ->
+            val indexOf = list.indexOfFirst { it.id == favoriteId }
+            if (indexOf >= 0) notifyItemChanged(indexOf)
+        }
+    }
+
 }
 
 class KittenViewHolder(
@@ -46,6 +62,8 @@ class KittenViewHolder(
         val file = File(baseDirectory, "${kitten.id}.jpg")
         Glide.with(binding.image)
             .load(file)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
             .placeholder(R.drawable.img_cat_placeholder)
             .into(binding.image)
     }
