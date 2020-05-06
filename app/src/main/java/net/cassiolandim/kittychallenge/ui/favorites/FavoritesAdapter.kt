@@ -13,7 +13,9 @@ import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
 import java.io.File
 
-class FavoritesAdapter : ListAdapter<FavoriteUiModel, KittenViewHolder>(DIFF_CALLBACK) {
+class FavoritesAdapter(
+    private val deleteCallback: (String) -> Unit
+) : ListAdapter<FavoriteUiModel, KittenViewHolder>(DIFF_CALLBACK) {
 
     private var currentList : List<FavoriteUiModel>? = null
 
@@ -29,7 +31,7 @@ class FavoritesAdapter : ListAdapter<FavoriteUiModel, KittenViewHolder>(DIFF_CAL
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KittenViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val binding = FavoriteItemBinding.inflate(layoutInflater, parent,false)
-        return KittenViewHolder(binding)
+        return KittenViewHolder(binding, deleteCallback)
     }
 
     override fun onBindViewHolder(holder: KittenViewHolder, position: Int) {
@@ -52,14 +54,19 @@ class FavoritesAdapter : ListAdapter<FavoriteUiModel, KittenViewHolder>(DIFF_CAL
 }
 
 class KittenViewHolder(
-    private val binding: FavoriteItemBinding
+    private val binding: FavoriteItemBinding,
+    private val deleteCallback: (String) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bindTo(kitten: FavoriteUiModel) {
-        binding.model = kitten
+    fun bindTo(model: FavoriteUiModel) {
+        binding.model = model
+
+        binding.deleteLayout.setOnClickListener {
+            deleteCallback(model.id)
+        }
 
         val baseDirectory = binding.root.context.getOutputDirectory()
-        val file = File(baseDirectory, "${kitten.id}.jpg")
+        val file = File(baseDirectory, "${model.id}.jpg")
         Glide.with(binding.image)
             .load(file)
             .diskCacheStrategy(DiskCacheStrategy.NONE)

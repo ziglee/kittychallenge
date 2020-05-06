@@ -23,28 +23,26 @@ class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
 
-    private var page = 0
-    private var isLoading = true
 
     private val baseDirectory : File by lazy {
         requireContext().getOutputDirectory()
     }
 
-    private val kittenList = mutableListOf<KittenUiModel>()
-    private val adapter = KittensAdapter(kittenList) { kitten : KittenUiModel ->
-        if (kitten.isFavorite) {
-            viewModel.saveFavorite(kitten.id, kitten.url)
-        } else {
-            kitten.favoriteId?.let {
-                viewModel.deleteFavorite(it, baseDirectory)
-            }
-        }
-    }
+    private lateinit var adapter : KittensAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = createMainViewModel().also {
-            it.search(page)
+            adapter = KittensAdapter(it.kittenList) { kitten : KittenUiModel ->
+                if (kitten.isFavorite) {
+                    viewModel.saveFavorite(kitten.id, kitten.url)
+                } else {
+                    kitten.favoriteId?.let { id ->
+                        viewModel.deleteFavorite(id, baseDirectory)
+                    }
+                }
+            }
+            it.firstPageSearch()
         }
     }
 
@@ -85,7 +83,6 @@ class MainFragment : Fragment() {
                     adapter.notifyDataSetChanged()
                     emptyStateLayout.visibility = View.GONE
                 }
-                isLoading = false
             })
             networkState.observe(viewLifecycleOwner, Observer {
                 when(it.status) {
@@ -114,13 +111,13 @@ class MainFragment : Fragment() {
                     }
                 }
             })
+            deletedFavoriteIndex.observe(viewLifecycleOwner, Observer {
+                adapter.notifyItemChanged(it)
+            })
         }
 
         tryAgainButton.setOnClickListener {
-            kittenList.clear()
-            page = 0
-            viewModel.search(page)
-            isLoading = true
+            viewModel.firstPageSearch()
         }
 
         initScrollListener()
@@ -131,11 +128,10 @@ class MainFragment : Fragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager?
-                if (!isLoading &&
+                if (!viewModel.isLoading &&
                         linearLayoutManager != null &&
-                        linearLayoutManager.findLastCompletelyVisibleItemPosition() == kittenList.size - 1) {
-                    viewModel.search(++page)
-                    isLoading = true
+                        linearLayoutManager.findLastCompletelyVisibleItemPosition() == viewModel.kittenList.size - 1) {
+                    viewModel.increasePageAndSearch()
                 }
             }
         }

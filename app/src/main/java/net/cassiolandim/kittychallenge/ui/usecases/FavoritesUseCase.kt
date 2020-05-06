@@ -1,4 +1,4 @@
-package net.cassiolandim.kittychallenge.ui.favorites.usecases
+package net.cassiolandim.kittychallenge.ui.usecases
 
 import net.cassiolandim.kittychallenge.di.BaseUseCase
 import net.cassiolandim.kittychallenge.repository.KittensRepository

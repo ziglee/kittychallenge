@@ -47,12 +47,12 @@ class KittenViewHolder(
     private val toggleFavoriteCallback: (KittenUiModel) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bindTo(kitten: KittenUiModel) {
-        binding.model = kitten
+    fun bindTo(model: KittenUiModel) {
+        binding.model = model
 
-        if (kitten.favoriteId != null) {
+        if (model.favoriteId != null) {
             val baseDirectory = binding.root.context.getOutputDirectory()
-            val file = File(baseDirectory, "${kitten.favoriteId}.jpg")
+            val file = File(baseDirectory, "${model.favoriteId}.jpg")
             if (file.exists()) {
                 Glide.with(binding.image)
                     .load(file)
@@ -61,37 +61,37 @@ class KittenViewHolder(
                     .placeholder(R.drawable.img_cat_placeholder)
                     .into(binding.image)
             } else {
-                loadImageFromNetwork(kitten)
+                loadImageFromNetwork(model)
             }
         } else {
-            loadImageFromNetwork(kitten)
+            loadImageFromNetwork(model)
         }
 
         binding.favoriteLayout.setOnClickListener {
-            kitten.isFavorite = !kitten.isFavorite
-            toggleFavoriteCallback(kitten)
-            setupFavoriteButton(kitten.isFavorite)
+            model.isFavorite = !model.isFavorite
+            toggleFavoriteCallback(model)
+            setupFavoriteButton(model.isFavorite)
         }
 
-        setupFavoriteButton(kitten.isFavorite)
+        setupFavoriteButton(model.isFavorite)
     }
 
-    private fun loadImageFromNetwork(kitten: KittenUiModel) {
+    private fun loadImageFromNetwork(model: KittenUiModel) {
         Glide.with(binding.image)
-            .load(kitten.url)
+            .load(model.url)
             .placeholder(R.drawable.img_cat_placeholder)
             .into(binding.image)
     }
 
     private fun setupFavoriteButton(isFavorite: Boolean) {
-        val black = binding.root.resources.getColor(R.color.black, null)
+        val grey = binding.root.resources.getColor(R.color.grey, null)
         val allTimeNeonRed = binding.root.resources.getColor(R.color.allTimeNeonRed, null)
         if (isFavorite) {
             binding.favoriteIcon.setImageResource(R.drawable.ic_star_black)
             binding.favoriteIcon.imageTintList = ColorStateList.valueOf(allTimeNeonRed)
         } else {
             binding.favoriteIcon.setImageResource(R.drawable.ic_star_outline_black)
-            binding.favoriteIcon.imageTintList = ColorStateList.valueOf(black)
+            binding.favoriteIcon.imageTintList = ColorStateList.valueOf(grey)
         }
     }
 }

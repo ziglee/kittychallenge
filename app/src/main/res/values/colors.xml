@@ -11,4 +11,5 @@
     <color name="white20">#20FFFFFF</color>
     <color name="whiteA0">#A0FFFFFF</color>
     <color name="allTimeNeonRed">#FF073A</color>
+    <color name="grey">#404040</color>
 </resources>

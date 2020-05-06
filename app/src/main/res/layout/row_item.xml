@@ -52,7 +52,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_star_outline_black"
-                android:tint="@color/black"/>
+                android:tint="@color/grey"/>
 
         </RelativeLayout>
 

@@ -18,17 +18,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.favorites_fragment.*
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.FavoritesFragmentBinding
-import net.cassiolandim.kittychallenge.di.createFavoritesViewModel
+import net.cassiolandim.kittychallenge.di.createMainViewModel
+import net.cassiolandim.kittychallenge.getOutputDirectory
+import net.cassiolandim.kittychallenge.ui.main.MainViewModel
 
 class FavoritesFragment : Fragment() {
 
-    private lateinit var viewModel: FavoritesViewModel
-    private val adapter = FavoritesAdapter()
+    private lateinit var viewModel: MainViewModel
+    private val adapter = FavoritesAdapter { id ->
+        viewModel.deleteFavorite(id, requireContext().getOutputDirectory())
+    }
     private val broadcastReceiver = ImageDownloadedBroadcastReceiver(adapter)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = createFavoritesViewModel()
+        viewModel = createMainViewModel()
 
         val filter = IntentFilter(ImageDownloadedBroadcastReceiver.ACTION)
         LocalBroadcastManager.getInstance(context)
@@ -71,11 +75,11 @@ class FavoritesFragment : Fragment() {
 
         with(viewModel) {
             favorites.observe(viewLifecycleOwner, Observer {
+                adapter.submitList(it)
                 if (it.isEmpty()) {
                     emptyStateMessage.visibility = View.VISIBLE
                 } else {
                     emptyStateMessage.visibility = View.GONE
-                    adapter.submitList(it)
                 }
             })
         }
