@@ -1,7 +1,7 @@
 package net.cassiolandim.kittychallenge.repository
 
-import net.cassiolandim.kittychallenge.di.FavoriteDomainModel
-import net.cassiolandim.kittychallenge.di.KittenDomainModel
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
+import net.cassiolandim.kittychallenge.domain.KittenDomainModel
 import java.io.File
 
 interface KittensRepository {

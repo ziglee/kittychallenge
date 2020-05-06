@@ -1,4 +1,4 @@
-package net.cassiolandim.kittychallenge.di
+package net.cassiolandim.kittychallenge.ui.usecases
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

@@ -3,8 +3,8 @@ package net.cassiolandim.kittychallenge.repository
 import androidx.work.*
 import net.cassiolandim.kittychallenge.database.FavoriteDatabaseModel
 import net.cassiolandim.kittychallenge.database.FavoritesDao
-import net.cassiolandim.kittychallenge.di.FavoriteDomainModel
-import net.cassiolandim.kittychallenge.di.KittenDomainModel
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
+import net.cassiolandim.kittychallenge.domain.KittenDomainModel
 import net.cassiolandim.kittychallenge.network.SaveFavoriteRequestNetworkModel
 import net.cassiolandim.kittychallenge.network.TheCatApiService
 import net.cassiolandim.kittychallenge.work.ImageDownloadWorker

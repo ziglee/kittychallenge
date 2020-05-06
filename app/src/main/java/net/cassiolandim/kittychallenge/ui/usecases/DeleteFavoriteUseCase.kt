@@ -1,6 +1,5 @@
 package net.cassiolandim.kittychallenge.ui.usecases
 
-import net.cassiolandim.kittychallenge.di.BaseUseCase
 import net.cassiolandim.kittychallenge.repository.KittensRepository
 import java.io.File
 import javax.inject.Inject

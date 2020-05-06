@@ -21,7 +21,7 @@ object NetworkModule {
     fun provideZypOneService(okHttpClient: OkHttpClient): TheCatApiService = Retrofit.Builder()
         .baseUrl(TheCatApiService.API_ENDPOINT)
         .client(okHttpClient)
-        .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()).withNullSerialization())
+        .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()))
         .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
         .build()
         .create(TheCatApiService::class.java)

@@ -1,4 +1,4 @@
-package net.cassiolandim.kittychallenge.di
+package net.cassiolandim.kittychallenge.domain
 
 data class FavoriteDomainModel(
     val id: String,

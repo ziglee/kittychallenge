@@ -8,7 +8,7 @@ import timber.log.Timber
 class MyApplication : Application() {
 
     val appComponent: AppComponent by lazy {
-        DaggerAppComponent.factory().create(applicationContext, this)
+        DaggerAppComponent.factory().create(applicationContext)
     }
 
     override fun onCreate() {

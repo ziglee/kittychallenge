@@ -1,7 +1,6 @@
 package net.cassiolandim.kittychallenge.ui.usecases
 
-import net.cassiolandim.kittychallenge.di.BaseUseCase
-import net.cassiolandim.kittychallenge.di.FavoriteDomainModel
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.repository.KittensRepository
 import javax.inject.Inject
 
