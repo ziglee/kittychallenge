@@ -13,7 +13,7 @@ class SearchUseCase @Inject constructor(
 
     override suspend fun run(params: Params) : List<KittenUiModel> {
         return kittensRepository.search(params.page).map { kitten ->
-            val favorite = kittensRepository.favoritesCache.find {
+            val favorite = kittensRepository.favoritesInMemoryCache.find {
                 it.imageId == kitten.id
             }
             KittenUiModel(

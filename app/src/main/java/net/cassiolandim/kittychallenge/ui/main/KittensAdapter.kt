@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.RowItemBinding
+import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
+import java.io.File
 
 class KittensAdapter(
     private val kittenList: List<KittenUiModel>,
@@ -46,11 +48,21 @@ class KittenViewHolder(
 
     fun bindTo(kitten: KittenUiModel) {
         binding.model = kitten
-        binding.image
 
-        Glide.with(binding.image)
-            .load(kitten.url)
-            .into(binding.image)
+        if (kitten.favoriteId != null) {
+            val baseDirectory = binding.root.context.getOutputDirectory()
+            val file = File(baseDirectory, "${kitten.favoriteId}.jpg")
+            if (file.exists()) {
+                Glide.with(binding.image)
+                    .load(file)
+                    .placeholder(R.drawable.img_cat_placeholder)
+                    .into(binding.image)
+            } else {
+                loadImageFromNetwork(kitten)
+            }
+        } else {
+            loadImageFromNetwork(kitten)
+        }
 
         binding.favoriteLayout.setOnClickListener {
             kitten.isFavorite = !kitten.isFavorite
@@ -59,6 +71,13 @@ class KittenViewHolder(
         }
 
         setupFavoriteButton(kitten.isFavorite)
+    }
+
+    private fun loadImageFromNetwork(kitten: KittenUiModel) {
+        Glide.with(binding.image)
+            .load(kitten.url)
+            .placeholder(R.drawable.img_cat_placeholder)
+            .into(binding.image)
     }
 
     private fun setupFavoriteButton(isFavorite: Boolean) {

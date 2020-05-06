@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.BindsInstance
 import dagger.Component
 import net.cassiolandim.kittychallenge.MyApplication
+import net.cassiolandim.kittychallenge.ui.favorites.FavoritesViewModel
 import net.cassiolandim.kittychallenge.ui.main.MainViewModel
 import javax.inject.Singleton
 
@@ -14,16 +15,19 @@ import javax.inject.Singleton
 @Component(
     modules = [
         NetworkModule::class,
-        KittensModule::class
+        KittensModule::class,
+        StorageModule::class,
+        UtilsModule::class
     ]
 )
 interface AppComponent {
 
     val mainViewModel: MainViewModel
+    val favoritesViewModel: FavoritesViewModel
 
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance context: Context): AppComponent
+        fun create(@BindsInstance context: Context, @BindsInstance application: MyApplication): AppComponent
     }
 }
 
@@ -43,4 +47,9 @@ inline fun <reified T : ViewModel> Fragment.createFragmentViewModel(crossinline 
 fun Fragment.createMainViewModel() =
     createFragmentViewModel {
         (requireActivity().application as MyApplication).appComponent.mainViewModel
+    }
+
+fun Fragment.createFavoritesViewModel() =
+    createFragmentViewModel {
+        (requireActivity().application as MyApplication).appComponent.favoritesViewModel
     }

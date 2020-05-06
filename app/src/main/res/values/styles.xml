@@ -6,4 +6,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="myToolbarTheme">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="android:drawableTint">@color/white</item>
+    </style>
+
 </resources>

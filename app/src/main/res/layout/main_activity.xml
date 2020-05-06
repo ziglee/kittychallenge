@@ -13,6 +13,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         app:titleTextColor="@color/white"
+        android:theme="@style/myToolbarTheme"
         android:id="@+id/toolbar" />
 
     <fragment

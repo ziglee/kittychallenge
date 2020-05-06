@@ -45,19 +45,19 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun saveFavorite(id: String, url: String, outputDirectory: File) {
+    fun saveFavorite(id: String, url: String) {
         saveFavoriteUseCase(
             scope = viewModelScope,
-            params = SaveFavoriteUseCase.Params(id, url, outputDirectory),
+            params = SaveFavoriteUseCase.Params(id, url),
             onError = { Timber.e(it) },
             onSuccess = { _savedFavorite.value = it }
         )
     }
 
-    fun deleteFavorite(id: String) {
+    fun deleteFavorite(id: String, baseDirectory: File) {
         deleteFavoriteUseCase(
             scope = viewModelScope,
-            params = DeleteFavoriteUseCase.Params(id),
+            params = DeleteFavoriteUseCase.Params(id, baseDirectory),
             onError = { Timber.e(it) },
             onSuccess = { Timber.d("deleted favorite #$id") }
         )

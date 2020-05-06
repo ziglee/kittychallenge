@@ -2,13 +2,12 @@ package net.cassiolandim.kittychallenge.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.main_fragment.*
@@ -18,19 +17,26 @@ import net.cassiolandim.kittychallenge.di.createMainViewModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.network.Status
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
+import java.io.File
 
 class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
+
     private var page = 0
-    private val kittenList = mutableListOf<KittenUiModel>()
     private var isLoading = true
+
+    private val baseDirectory : File by lazy {
+        requireContext().getOutputDirectory()
+    }
+
+    private val kittenList = mutableListOf<KittenUiModel>()
     private val adapter = KittensAdapter(kittenList) { kitten : KittenUiModel ->
         if (kitten.isFavorite) {
-            viewModel.saveFavorite(kitten.id, kitten.url, requireContext().getOutputDirectory())
+            viewModel.saveFavorite(kitten.id, kitten.url)
         } else {
             kitten.favoriteId?.let {
-                viewModel.deleteFavorite(it)
+                viewModel.deleteFavorite(it, baseDirectory)
             }
         }
     }
@@ -40,6 +46,11 @@ class MainFragment : Fragment() {
         viewModel = createMainViewModel().also {
             it.search(page)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -112,5 +123,20 @@ class MainFragment : Fragment() {
             }
         }
         recyclerView.addOnScrollListener(scrollListener)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.favorites_menu -> {
+                val action = MainFragmentDirections.actionMainFragmentToFavoritesFragment()
+                findNavController().navigate(action)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
