@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.BindsInstance
 import dagger.Component
 import net.cassiolandim.kittychallenge.MyApplication
-import net.cassiolandim.kittychallenge.ui.main.MainViewModel
+import net.cassiolandim.kittychallenge.ui.MainViewModel
 import javax.inject.Singleton
 
 @Singleton

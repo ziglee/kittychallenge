@@ -12,6 +12,6 @@ class SaveFavoriteUseCase @Inject constructor(
     data class Params(val imageId: String, val url: String)
 
     override suspend fun run(params: Params) : FavoriteDomainModel {
-       return kittensRepository.saveFavourite(params.imageId, params.url)
+       return kittensRepository.saveFavorite(params.imageId, params.url)
     }
 }

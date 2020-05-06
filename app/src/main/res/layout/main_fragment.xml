@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="net.cassiolandim.kittychallenge.ui.main.MainViewModel" />
+            type="net.cassiolandim.kittychallenge.ui.MainViewModel" />
     </data>
 
     <FrameLayout

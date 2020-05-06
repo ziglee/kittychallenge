@@ -1,10 +1,9 @@
-package net.cassiolandim.kittychallenge.ui.main
+package net.cassiolandim.kittychallenge.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import net.cassiolandim.kittychallenge.di.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.network.NetworkState
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
 import net.cassiolandim.kittychallenge.ui.usecases.FavoritesUseCase
@@ -33,8 +32,8 @@ class MainViewModel @Inject constructor(
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState> = _networkState
 
-    private val _savedFavorite = MutableLiveData<FavoriteDomainModel>()
-    val savedFavorite: LiveData<FavoriteDomainModel> = _savedFavorite
+    private val _savedFavoriteIndex = MutableLiveData<Int>()
+    val savedFavoriteIndex: LiveData<Int> = _savedFavoriteIndex
 
     private val _favorites = MutableLiveData<List<FavoriteUiModel>>()
     val favorites: LiveData<List<FavoriteUiModel>> = _favorites
@@ -70,6 +69,7 @@ class MainViewModel @Inject constructor(
             },
             onSuccess = {
                 isLoading = false
+                kittenList.addAll(it)
                 _kittens.value = it
                 _networkState.value = NetworkState.LOADED
             }
@@ -82,7 +82,14 @@ class MainViewModel @Inject constructor(
             params = SaveFavoriteUseCase.Params(id, url),
             onError = { Timber.e(it) },
             onSuccess = {
-                _savedFavorite.value = it
+                val indexOf = kittenList.indexOfFirst { it.id == id }
+                if (indexOf >= 0) {
+                    kittenList[indexOf].let { kitten ->
+                        kitten.favoriteId = it.id
+                        kitten.isFavorite = true
+                    }
+                    _savedFavoriteIndex.value = indexOf
+                }
                 fetchFavorites()
             }
         )
@@ -94,8 +101,8 @@ class MainViewModel @Inject constructor(
             params = DeleteFavoriteUseCase.Params(id, baseDirectory),
             onError = { Timber.e(it) },
             onSuccess = {
-                fetchFavorites()
-                val indexOf = kittenList.indexOfFirst { it.favoriteId != null && it.favoriteId == id }
+                val indexOf = kittenList
+                    .indexOfFirst { it.favoriteId != null && it.favoriteId == id }
                 if (indexOf >= 0) {
                     kittenList[indexOf].let {
                         it.favoriteId = null
@@ -103,6 +110,7 @@ class MainViewModel @Inject constructor(
                     }
                     _deletedFavoriteIndex.value = indexOf
                 }
+                fetchFavorites()
             }
         )
     }

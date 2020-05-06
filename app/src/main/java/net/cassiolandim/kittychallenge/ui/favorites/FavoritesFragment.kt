@@ -20,7 +20,7 @@ import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.FavoritesFragmentBinding
 import net.cassiolandim.kittychallenge.di.createMainViewModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
-import net.cassiolandim.kittychallenge.ui.main.MainViewModel
+import net.cassiolandim.kittychallenge.ui.MainViewModel
 
 class FavoritesFragment : Fragment() {
 
@@ -102,6 +102,7 @@ class ImageDownloadedBroadcastReceiver(private val adapter: FavoritesAdapter) : 
         const val ACTION = "net.cassiolandim.kittychallenge.IMAGE_DOWNLOADED"
         const val EXTRA_FAVORITE_ID = "EXTRA_FAVORITE_ID"
     }
+
     override fun onReceive(context: Context, intent: Intent) {
         val favoriteId = intent.getStringExtra(EXTRA_FAVORITE_ID)!!
         adapter.notifyItemChangedByFavoriteId(favoriteId)

@@ -16,18 +16,12 @@ import net.cassiolandim.kittychallenge.databinding.MainFragmentBinding
 import net.cassiolandim.kittychallenge.di.createMainViewModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.network.Status
+import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
-import java.io.File
 
 class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
-
-
-    private val baseDirectory : File by lazy {
-        requireContext().getOutputDirectory()
-    }
-
     private lateinit var adapter : KittensAdapter
 
     override fun onAttach(context: Context) {
@@ -38,7 +32,7 @@ class MainFragment : Fragment() {
                     viewModel.saveFavorite(kitten.id, kitten.url)
                 } else {
                     kitten.favoriteId?.let { id ->
-                        viewModel.deleteFavorite(id, baseDirectory)
+                        viewModel.deleteFavorite(id, requireContext().getOutputDirectory())
                     }
                 }
             }
@@ -75,15 +69,6 @@ class MainFragment : Fragment() {
         recyclerView.adapter = adapter
 
         with(viewModel) {
-            kittens.observe(viewLifecycleOwner, Observer {
-                if (it.isEmpty()) {
-                    emptyStateLayout.visibility = View.VISIBLE
-                } else {
-                    kittenList.addAll(it)
-                    adapter.notifyDataSetChanged()
-                    emptyStateLayout.visibility = View.GONE
-                }
-            })
             networkState.observe(viewLifecycleOwner, Observer {
                 when(it.status) {
                     Status.RUNNING -> {
@@ -101,16 +86,20 @@ class MainFragment : Fragment() {
                     }
                 }
             })
-            savedFavorite.observe(viewLifecycleOwner, Observer {
-                val indexOf = kittenList.indexOfFirst { kitten ->
-                    kitten.id == it.imageId
+
+            kittens.observe(viewLifecycleOwner, Observer {
+                if (it.isEmpty()) {
+                    emptyStateLayout.visibility = View.VISIBLE
+                } else {
+                    emptyStateLayout.visibility = View.GONE
                 }
-                if (indexOf >= 0) {
-                    with(kittenList[indexOf]) {
-                        favoriteId = it.id
-                    }
-                }
+                adapter.notifyDataSetChanged()
             })
+
+            savedFavoriteIndex.observe(viewLifecycleOwner, Observer {
+                adapter.notifyItemChanged(it)
+            })
+
             deletedFavoriteIndex.observe(viewLifecycleOwner, Observer {
                 adapter.notifyItemChanged(it)
             })
@@ -145,7 +134,8 @@ class MainFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.favorites_menu -> {
-                val action = MainFragmentDirections.actionMainFragmentToFavoritesFragment()
+                val action = MainFragmentDirections
+                    .actionMainFragmentToFavoritesFragment()
                 findNavController().navigate(action)
                 true
             }

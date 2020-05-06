@@ -32,7 +32,7 @@ class KittensRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveFavourite(imageId: String, url: String) : FavoriteDomainModel {
+    override suspend fun saveFavorite(imageId: String, url: String) : FavoriteDomainModel {
         val response = theCatApiService
             .saveFavourite(SaveFavoriteRequestNetworkModel(imageId))
         val model = FavoriteDomainModel(
