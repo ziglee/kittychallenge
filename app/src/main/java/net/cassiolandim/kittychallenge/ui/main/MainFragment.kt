@@ -78,15 +78,27 @@ class MainFragment : Fragment() {
 
         with(viewModel) {
             kittens.observe(viewLifecycleOwner, Observer {
-                kittenList.addAll(it)
-                adapter.notifyDataSetChanged()
+                if (it.isEmpty()) {
+                    emptyStateLayout.visibility = View.VISIBLE
+                } else {
+                    kittenList.addAll(it)
+                    adapter.notifyDataSetChanged()
+                    emptyStateLayout.visibility = View.GONE
+                }
                 isLoading = false
             })
             networkState.observe(viewLifecycleOwner, Observer {
                 when(it.status) {
-                    Status.RUNNING -> progressLayout.visibility = View.VISIBLE
-                    Status.SUCCESS -> progressLayout.visibility = View.GONE
+                    Status.RUNNING -> {
+                        progressLayout.visibility = View.VISIBLE
+                        emptyStateLayout.visibility = View.GONE
+                    }
+                    Status.SUCCESS -> {
+                        progressLayout.visibility = View.GONE
+                        emptyStateLayout.visibility = View.GONE
+                    }
                     Status.FAILED -> {
+                        emptyStateLayout.visibility = View.VISIBLE
                         progressLayout.visibility = View.GONE
                         Toast.makeText(requireContext(), R.string.error, Toast.LENGTH_LONG).show()
                     }
@@ -102,6 +114,13 @@ class MainFragment : Fragment() {
                     }
                 }
             })
+        }
+
+        tryAgainButton.setOnClickListener {
+            kittenList.clear()
+            page = 0
+            viewModel.search(page)
+            isLoading = true
         }
 
         initScrollListener()

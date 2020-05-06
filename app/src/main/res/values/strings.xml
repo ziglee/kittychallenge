@@ -3,5 +3,7 @@
     <string name="favorites">Favorites</string>
     <string name="error">An error occurred</string>
     <string name="images_folder">images</string>
+    <string name="home_empty_message">No kittens have been found</string>
+    <string name="try_again">Try again</string>
     <string name="favorites_empty_message">Add favorite images from home screen</string>
 </resources>
