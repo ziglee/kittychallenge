@@ -18,7 +18,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideZypOneService(okHttpClient: OkHttpClient): TheCatApiService = Retrofit.Builder()
+    fun provideTheCatApiService(okHttpClient: OkHttpClient): TheCatApiService = Retrofit.Builder()
         .baseUrl(TheCatApiService.API_ENDPOINT)
         .client(okHttpClient)
         .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()))
