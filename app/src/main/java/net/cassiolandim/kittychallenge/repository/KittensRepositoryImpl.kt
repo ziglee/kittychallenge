@@ -46,12 +46,12 @@ class KittensRepositoryImpl @Inject constructor(
             imageId = model.imageId
         ))
 
-        enqueueSaveImageWorker(model.id, url)
+        enqueueSaveImageWork(model.id, url)
 
         return model
     }
 
-    private fun enqueueSaveImageWorker(favoriteId: String, url: String) {
+    private fun enqueueSaveImageWork(favoriteId: String, url: String) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
