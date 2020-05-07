@@ -8,8 +8,6 @@ abstract class BaseUseCase<out Type, in Params> where Type : Any {
 
     abstract suspend fun run(params: Params): Type
 
-    open fun isParamsValid(params: Params) = true
-
     open operator fun invoke(
         scope: CoroutineScope,
         params: Params,
@@ -26,8 +24,4 @@ abstract class BaseUseCase<out Type, in Params> where Type : Any {
             }
         }
     }
-
-    class IllegalParamsException(val errorStringId: Int) : RuntimeException()
-
-    class None
 }
