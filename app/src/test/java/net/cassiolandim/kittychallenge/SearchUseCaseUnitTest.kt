@@ -13,6 +13,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import java.lang.Exception
 import java.lang.RuntimeException
 
 @ExperimentalCoroutinesApi
@@ -44,20 +45,15 @@ class SearchUseCaseUnitTest {
                 page = 0
             )
             val useCase = SearchUseCase(kittensRepository)
-            useCase.invoke(
-                scope = this,
-                params = params,
-                onSuccess = { list ->
-                    Assert.assertNotNull(list)
-                    Assert.assertEquals(1, list.size)
-                    list.first().let {
-                        Assert.assertEquals("x", it.id)
-                        Assert.assertEquals("http", it.url)
-                        Assert.assertFalse(it.isFavorite)
-                    }
-                },
-                onError = { error -> Assert.fail(error.message) }
-            )
+            val list = useCase.run(params)
+
+            Assert.assertNotNull(list)
+            Assert.assertEquals(1, list.size)
+            list.first().let {
+                Assert.assertEquals("x", it.id)
+                Assert.assertEquals("http", it.url)
+                Assert.assertFalse(it.isFavorite)
+            }
 
             // Verifying behaviour
             Mockito.verify(kittensRepository).search(0)
@@ -89,19 +85,13 @@ class SearchUseCaseUnitTest {
                 page = 0
             )
             val useCase = SearchUseCase(kittensRepository)
-            useCase.invoke(
-                scope = this,
-                params = params,
-                onSuccess = { list ->
-                    Assert.assertNotNull(list)
-                    Assert.assertEquals(1, list.size)
-                    list.first().let {
-                        Assert.assertTrue(it.isFavorite)
-                        Assert.assertEquals("fav1", it.favoriteId)
-                    }
-                },
-                onError = { error -> Assert.fail(error.message) }
-            )
+            val list = useCase.run(params)
+            Assert.assertNotNull(list)
+            Assert.assertEquals(1, list.size)
+            list.first().let {
+                Assert.assertTrue(it.isFavorite)
+                Assert.assertEquals("fav1", it.favoriteId)
+            }
 
             // Verifying behaviour
             Mockito.verify(kittensRepository).search(0)
@@ -121,12 +111,12 @@ class SearchUseCaseUnitTest {
                 page = 0
             )
             val useCase = SearchUseCase(kittensRepository)
-            useCase.invoke(
-                scope = this,
-                params = params,
-                onSuccess = { _ -> Assert.fail("should not get in here") },
-                onError = { error -> Assert.assertNotNull(error) }
-            )
+            try {
+                useCase.run(params)
+                Assert.fail("should not get in here")
+            } catch (e: Exception) {
+                Assert.assertNotNull(e)
+            }
 
             // Verifying behaviour
             Mockito.verify(kittensRepository).search(0)

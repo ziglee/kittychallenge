@@ -3,14 +3,10 @@ package net.cassiolandim.kittychallenge.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import net.cassiolandim.kittychallenge.network.NetworkState
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
-import net.cassiolandim.kittychallenge.ui.usecases.FavoritesUseCase
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
-import net.cassiolandim.kittychallenge.ui.usecases.DeleteFavoriteUseCase
-import net.cassiolandim.kittychallenge.ui.usecases.SaveFavoriteUseCase
-import net.cassiolandim.kittychallenge.ui.usecases.SearchUseCase
+import net.cassiolandim.kittychallenge.ui.usecases.*
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -59,8 +55,9 @@ class MainViewModel @Inject constructor(
 
     private fun search(page: Int) {
         _networkState.value = NetworkState.LOADING
-        searchUseCase(
-            scope = viewModelScope,
+
+        executeUseCase(
+            useCase = searchUseCase,
             params = SearchUseCase.Params(page),
             onError = {
                 isLoading = false
@@ -77,8 +74,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun saveFavorite(id: String, url: String) {
-        saveFavoriteUseCase(
-            scope = viewModelScope,
+        executeUseCase(
+            useCase = saveFavoriteUseCase,
             params = SaveFavoriteUseCase.Params(id, url),
             onError = { Timber.e(it) },
             onSuccess = {
@@ -96,8 +93,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun deleteFavorite(id: String, baseDirectory: File) {
-        deleteFavoriteUseCase(
-            scope = viewModelScope,
+        executeUseCase(
+            useCase = deleteFavoriteUseCase,
             params = DeleteFavoriteUseCase.Params(id, baseDirectory),
             onError = { Timber.e(it) },
             onSuccess = {
@@ -116,11 +113,11 @@ class MainViewModel @Inject constructor(
     }
 
     private fun fetchFavorites() {
-        favoritesUseCase(
-            scope = viewModelScope,
+        executeUseCase(
+            useCase = favoritesUseCase,
             params = Unit,
-            onError = { Timber.e(it) },
-            onSuccess = { _favorites.value = it }
+            onSuccess = { _favorites.value = it },
+            onError = { Timber.e(it) }
         )
     }
 }
