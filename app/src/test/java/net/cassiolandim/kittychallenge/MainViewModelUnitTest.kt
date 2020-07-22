@@ -1,7 +1,10 @@
 package net.cassiolandim.kittychallenge
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import net.cassiolandim.kittychallenge.network.NetworkState
 import net.cassiolandim.kittychallenge.ui.MainViewModel
@@ -13,6 +16,7 @@ import net.cassiolandim.kittychallenge.ui.usecases.SaveFavoriteUseCase
 import net.cassiolandim.kittychallenge.ui.usecases.SearchUseCase
 import net.cassiolandim.kittychallenge.utils.TestCoroutineRule
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -25,24 +29,23 @@ class MainViewModelUnitTest {
     @get:Rule
     val testCoroutineRule = TestCoroutineRule()
 
+    @MockK
+    lateinit var favoritesUseCase: FavoritesUseCase
+    @MockK
+    lateinit var deleteFavoriteUseCase: DeleteFavoriteUseCase
+    @MockK
+    lateinit var saveFavoriteUseCase: SaveFavoriteUseCase
+    @MockK
+    lateinit var searchUseCase: SearchUseCase
+
+    @Before
+    fun setup() {
+        MockKAnnotations.init(this)
+    }
+
     @Test
     fun `Given repo has one item When first page searching Should return success`() {
         testCoroutineRule.runBlockingTest {
-            val favoritesUseCase = mockk<FavoritesUseCase>()
-            val deleteFavoriteUseCase = mockk<DeleteFavoriteUseCase>()
-            val saveFavoriteUseCase = mockk<SaveFavoriteUseCase>()
-            val searchUseCase = mockk<SearchUseCase>()
-
-            val uiModelList = listOf(
-                KittenUiModel(
-                    id = "kitten1",
-                    url = "kitten://"
-                )
-            )
-
-            coEvery { favoritesUseCase.run(Unit) } returns emptyList()
-            coEvery { searchUseCase.run(SearchUseCase.Params(0)) } returns uiModelList
-
             val viewModel = MainViewModel(
                 favoritesUseCase = favoritesUseCase,
                 deleteFavoriteUseCase = deleteFavoriteUseCase,
@@ -50,27 +53,37 @@ class MainViewModelUnitTest {
                 searchUseCase = searchUseCase
             )
 
+            val kitten1 = KittenUiModel(
+                id = "kitten1",
+                url = "kitten1"
+            )
+            val kitten2 = KittenUiModel(
+                id = "kitten2",
+                url = "kitten2"
+            )
+
+            coEvery { searchUseCase.run(SearchUseCase.Params(0)) } returns listOf(kitten1)
+            coEvery { searchUseCase.run(SearchUseCase.Params(1)) } returns listOf(kitten2)
+
             viewModel.firstPageSearch()
+            viewModel.increasePageAndSearch()
 
             viewModel.networkState.observeForever{}
             viewModel.kittens.observeForever{}
 
             Assert.assertEquals(NetworkState.LOADED, viewModel.networkState.value)
-            Assert.assertEquals(uiModelList, viewModel.kittens.value)
-            Assert.assertEquals(uiModelList, viewModel.kittenList)
+            Assert.assertEquals(listOf(kitten2), viewModel.kittens.value)
+            Assert.assertEquals(listOf(kitten1, kitten2), viewModel.kittenList)
             Assert.assertFalse(viewModel.isLoading)
 
             coVerify { searchUseCase.run(SearchUseCase.Params(0)) }
+            coVerify { searchUseCase.run(SearchUseCase.Params(1)) }
         }
     }
 
     @Test
     fun `Given a list of local favorites When initializing Should return local favorites`() {
         testCoroutineRule.runBlockingTest {
-            val favoritesUseCase = mockk<FavoritesUseCase>()
-            val deleteFavoriteUseCase = mockk<DeleteFavoriteUseCase>()
-            val saveFavoriteUseCase = mockk<SaveFavoriteUseCase>()
-            val searchUseCase = mockk<SearchUseCase>()
             val list = listOf(
                 FavoriteUiModel(
                     id = "fav1",
