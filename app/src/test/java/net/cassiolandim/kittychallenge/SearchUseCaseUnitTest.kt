@@ -1,13 +1,12 @@
 package net.cassiolandim.kittychallenge
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.domain.KittenDomainModel
 import net.cassiolandim.kittychallenge.repository.KittensRepository
 import net.cassiolandim.kittychallenge.ui.usecases.SearchUseCase
-import net.cassiolandim.kittychallenge.utils.TestCoroutineRule
 import org.junit.Assert
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -20,15 +19,12 @@ import java.lang.RuntimeException
 @RunWith(MockitoJUnitRunner::class)
 class SearchUseCaseUnitTest {
 
-    @get:Rule
-    val testCoroutineRule = TestCoroutineRule()
-
     @Mock
     lateinit var kittensRepository: KittensRepository
 
     @Test
     fun `Given repository is ok When searching Should return success`() {
-        testCoroutineRule.runBlockingTest {
+        runBlockingTest {
             // Initial setup
             Mockito.doReturn(listOf(
                 KittenDomainModel(
@@ -63,7 +59,7 @@ class SearchUseCaseUnitTest {
 
     @Test
     fun `Given repository has favorite in memory When searching Should return success favorited`() {
-        testCoroutineRule.runBlockingTest {
+        runBlockingTest {
             // Initial setup
             Mockito.doReturn(listOf(
                 KittenDomainModel(
@@ -101,7 +97,7 @@ class SearchUseCaseUnitTest {
 
     @Test
     fun `Given repository is down When searching Should return error`() {
-        testCoroutineRule.runBlockingTest {
+        runBlockingTest {
             // Initial setup
             Mockito.doThrow(RuntimeException("Server is down"))
                 .`when`(kittensRepository).search(0)
