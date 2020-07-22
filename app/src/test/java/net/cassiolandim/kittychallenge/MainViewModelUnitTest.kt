@@ -1,19 +1,22 @@
 package net.cassiolandim.kittychallenge
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
+import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import net.cassiolandim.kittychallenge.network.NetworkState
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
+import net.cassiolandim.kittychallenge.repository.KittensRepository
 import net.cassiolandim.kittychallenge.ui.MainViewModel
+import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
+import net.cassiolandim.kittychallenge.ui.usecases.DeleteFavoriteUseCase
+import net.cassiolandim.kittychallenge.ui.usecases.FavoritesUseCase
+import net.cassiolandim.kittychallenge.ui.usecases.SaveFavoriteUseCase
+import net.cassiolandim.kittychallenge.ui.usecases.SearchUseCase
 import net.cassiolandim.kittychallenge.utils.TestCoroutineRule
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
 
 @ExperimentalCoroutinesApi
-@RunWith(MockitoJUnitRunner::class)
 class MainViewModelUnitTest {
 
     @get:Rule
@@ -22,19 +25,39 @@ class MainViewModelUnitTest {
     @get:Rule
     val testCoroutineRule = TestCoroutineRule()
 
-    @Mock
-    private lateinit var networkStateObserver: Observer<NetworkState>
-
     @Test
     fun `Given When Should`() {
         testCoroutineRule.runBlockingTest {
-            val viewModel = MainViewModel(
-
+            val kittensRepository = mockk<KittensRepository>()
+            coEvery { kittensRepository.favoritesLocal() } returns listOf(
+                FavoriteDomainModel(
+                    id = "fav1",
+                    imageId = "img1"
+                )
             )
 
-            viewModel.networkState.observeForever(networkStateObserver)
+            val favoritesUseCase = FavoritesUseCase(kittensRepository)
+            val deleteFavoriteUseCase = mockk<DeleteFavoriteUseCase>()
+            val saveFavoriteUseCase = mockk<SaveFavoriteUseCase>()
+            val searchUseCase = mockk<SearchUseCase>()
 
-            viewModel.networkState.removeObserver(networkStateObserver)
+            val viewModel = MainViewModel(
+                favoritesUseCase = favoritesUseCase,
+                deleteFavoriteUseCase = deleteFavoriteUseCase,
+                saveFavoriteUseCase = saveFavoriteUseCase,
+                searchUseCase = searchUseCase
+            )
+
+            viewModel.favorites.observeForever{}
+
+            Assert.assertEquals(listOf(
+                FavoriteUiModel(
+                    id = "fav1",
+                    imageId = "img1"
+                )
+            ), viewModel.favorites.value)
+
+            coVerify { kittensRepository.favoritesLocal() }
         }
     }
 }
