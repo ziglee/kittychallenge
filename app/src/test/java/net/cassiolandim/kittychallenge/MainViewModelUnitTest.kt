@@ -1,11 +1,13 @@
 package net.cassiolandim.kittychallenge
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.network.NetworkState
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
@@ -19,6 +21,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.io.File
+import java.lang.RuntimeException
 
 @ExperimentalCoroutinesApi
 class MainViewModelUnitTest {
@@ -46,13 +50,6 @@ class MainViewModelUnitTest {
     @Test
     fun `Given repo has one item When first page searching Should return success`() {
         testCoroutineRule.runBlockingTest {
-            val viewModel = MainViewModel(
-                favoritesUseCase = favoritesUseCase,
-                deleteFavoriteUseCase = deleteFavoriteUseCase,
-                saveFavoriteUseCase = saveFavoriteUseCase,
-                searchUseCase = searchUseCase
-            )
-
             val kitten1 = KittenUiModel(
                 id = "kitten1",
                 url = "kitten1"
@@ -65,19 +62,64 @@ class MainViewModelUnitTest {
             coEvery { searchUseCase.run(SearchUseCase.Params(0)) } returns listOf(kitten1)
             coEvery { searchUseCase.run(SearchUseCase.Params(1)) } returns listOf(kitten2)
 
-            viewModel.firstPageSearch()
-            viewModel.increasePageAndSearch()
+            MainViewModel(
+                favoritesUseCase = favoritesUseCase,
+                deleteFavoriteUseCase = deleteFavoriteUseCase,
+                saveFavoriteUseCase = saveFavoriteUseCase,
+                searchUseCase = searchUseCase
+            ).apply {
+                firstPageSearch()
+                increasePageAndSearch()
 
-            viewModel.networkState.observeForever{}
-            viewModel.kittens.observeForever{}
+                val networkSateObserver = Observer<NetworkState> {}
+                val kittensObserver = Observer<List<KittenUiModel>> {}
+                try {
+                    networkState.observeForever(networkSateObserver)
+                    kittens.observeForever(kittensObserver)
 
-            Assert.assertEquals(NetworkState.LOADED, viewModel.networkState.value)
-            Assert.assertEquals(listOf(kitten2), viewModel.kittens.value)
-            Assert.assertEquals(listOf(kitten1, kitten2), viewModel.kittenList)
-            Assert.assertFalse(viewModel.isLoading)
+                    Assert.assertEquals(NetworkState.LOADED, networkState.value)
+                    Assert.assertEquals(listOf(kitten2), kittens.value)
+                    Assert.assertEquals(listOf(kitten1, kitten2), kittenList)
+                    Assert.assertFalse(isLoading)
+                } finally {
+                    networkState.removeObserver(networkSateObserver)
+                    kittens.removeObserver(kittensObserver)
+                }
+            }
 
             coVerify { searchUseCase.run(SearchUseCase.Params(0)) }
             coVerify { searchUseCase.run(SearchUseCase.Params(1)) }
+        }
+    }
+
+    @Test
+    fun `Given repo is down When first page searching Should return error`() {
+        testCoroutineRule.runBlockingTest {
+            val errorMessage = "simulating server down"
+            coEvery {
+                searchUseCase.run(SearchUseCase.Params(0))
+            } throws RuntimeException(errorMessage)
+
+            MainViewModel(
+                favoritesUseCase = favoritesUseCase,
+                deleteFavoriteUseCase = deleteFavoriteUseCase,
+                saveFavoriteUseCase = saveFavoriteUseCase,
+                searchUseCase = searchUseCase
+            ).apply {
+                firstPageSearch()
+
+                val networkSateObserver = Observer<NetworkState> {}
+                try {
+                    networkState.observeForever(networkSateObserver)
+
+                    Assert.assertEquals(NetworkState.error(errorMessage), networkState.value)
+                    Assert.assertFalse(isLoading)
+                } finally {
+                    networkState.removeObserver(networkSateObserver)
+                }
+            }
+
+            coVerify { searchUseCase.run(SearchUseCase.Params(0)) }
         }
     }
 
@@ -93,17 +135,126 @@ class MainViewModelUnitTest {
 
             coEvery { favoritesUseCase.run(Unit) } returns list
 
-            val viewModel = MainViewModel(
+            MainViewModel(
                 favoritesUseCase = favoritesUseCase,
                 deleteFavoriteUseCase = deleteFavoriteUseCase,
                 saveFavoriteUseCase = saveFavoriteUseCase,
                 searchUseCase = searchUseCase
-            )
+            ).apply {
 
-            viewModel.favorites.observeForever{}
-            Assert.assertEquals(list, viewModel.favorites.value)
+                val favoritesObserver = Observer<List<FavoriteUiModel>> {}
+                try {
+                    favorites.observeForever(favoritesObserver)
+                    Assert.assertEquals(list, favorites.value)
+                } finally {
+                    favorites.removeObserver(favoritesObserver)
+                }
+            }
 
             coVerify { favoritesUseCase.run(Unit) }
+        }
+    }
+
+    @Test
+    fun `Given a kitten When saving favorite Should return update its model`() {
+        testCoroutineRule.runBlockingTest {
+            val params = SaveFavoriteUseCase.Params(
+                imageId = "kitten1",
+                url = "url1"
+            )
+
+            coEvery {
+                saveFavoriteUseCase.run(params)
+            } returns FavoriteDomainModel(
+                id = "kitten1",
+                imageId = "url1"
+            )
+
+            MainViewModel(
+                favoritesUseCase = favoritesUseCase,
+                deleteFavoriteUseCase = deleteFavoriteUseCase,
+                saveFavoriteUseCase = saveFavoriteUseCase,
+                searchUseCase = searchUseCase
+            ).apply {
+                val kitten = KittenUiModel(
+                    id = "kitten1",
+                    url = "url1",
+                    isFavorite = false,
+                    favoriteId = null
+                )
+                kittenList.add(kitten)
+
+                saveFavorite(
+                    id = kitten.id,
+                    url = kitten.url
+                )
+
+                val observer = Observer<Int> {}
+                try {
+                    savedFavoriteIndex.observeForever(observer)
+                    Assert.assertEquals(0, savedFavoriteIndex.value)
+
+                    kitten.apply {
+                        Assert.assertTrue(isFavorite)
+                        Assert.assertNotNull(favoriteId)
+                        Assert.assertEquals("kitten1", favoriteId)
+                    }
+                } finally {
+                    savedFavoriteIndex.removeObserver(observer)
+                }
+            }
+
+            coVerify { saveFavoriteUseCase.run(params) }
+        }
+    }
+
+    @Test
+    fun `Given a kitten When deleting favorite Should return update its model`() {
+        testCoroutineRule.runBlockingTest {
+            val baseDirectory = File("")
+            val params = DeleteFavoriteUseCase.Params(
+                id = "kitten1",
+                baseDirectory = baseDirectory
+            )
+
+            coEvery {
+                deleteFavoriteUseCase.run(params)
+            } returns Unit
+
+            MainViewModel(
+                favoritesUseCase = favoritesUseCase,
+                deleteFavoriteUseCase = deleteFavoriteUseCase,
+                saveFavoriteUseCase = saveFavoriteUseCase,
+                searchUseCase = searchUseCase
+            ).apply {
+                val kitten = KittenUiModel(
+                    id = "kitten1",
+                    url = "url1",
+                    isFavorite = true,
+                    favoriteId = "kitten1"
+                )
+                kittenList.add(kitten)
+
+                deleteFavorite(
+                    id = kitten.id,
+                    baseDirectory = baseDirectory
+                )
+
+                val observer = Observer<Int> {}
+                try {
+                    deletedFavoriteIndex.observeForever(observer)
+                    Assert.assertEquals(0, deletedFavoriteIndex.value)
+
+                    kitten.apply {
+                        Assert.assertFalse(isFavorite)
+                        Assert.assertNull(favoriteId)
+                    }
+                } finally {
+                    deletedFavoriteIndex.removeObserver(observer)
+                }
+            }
+
+            coVerify { deleteFavoriteUseCase.run(params) }
         }
     }
 }

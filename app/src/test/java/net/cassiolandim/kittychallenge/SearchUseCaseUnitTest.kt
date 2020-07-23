@@ -41,14 +41,14 @@ class SearchUseCaseUnitTest {
                 page = 0
             )
             val useCase = SearchUseCase(kittensRepository)
-            val list = useCase.run(params)
-
-            Assert.assertNotNull(list)
-            Assert.assertEquals(1, list.size)
-            list.first().let {
-                Assert.assertEquals("x", it.id)
-                Assert.assertEquals("http", it.url)
-                Assert.assertFalse(it.isFavorite)
+            useCase.run(params).apply {
+                Assert.assertNotNull(this)
+                Assert.assertEquals(1, size)
+                first().let {
+                    Assert.assertEquals("x", it.id)
+                    Assert.assertEquals("http", it.url)
+                    Assert.assertFalse(it.isFavorite)
+                }
             }
 
             // Verifying behaviour
@@ -81,12 +81,13 @@ class SearchUseCaseUnitTest {
                 page = 0
             )
             val useCase = SearchUseCase(kittensRepository)
-            val list = useCase.run(params)
-            Assert.assertNotNull(list)
-            Assert.assertEquals(1, list.size)
-            list.first().let {
-                Assert.assertTrue(it.isFavorite)
-                Assert.assertEquals("fav1", it.favoriteId)
+            useCase.run(params).apply {
+                Assert.assertNotNull(this)
+                Assert.assertEquals(1, size)
+                first().let {
+                    Assert.assertTrue(it.isFavorite)
+                    Assert.assertEquals("fav1", it.favoriteId)
+                }
             }
 
             // Verifying behaviour
@@ -103,12 +104,9 @@ class SearchUseCaseUnitTest {
                 .`when`(kittensRepository).search(0)
 
             // Performing usecase
-            val params = SearchUseCase.Params(
-                page = 0
-            )
             val useCase = SearchUseCase(kittensRepository)
             try {
-                useCase.run(params)
+                useCase.run(SearchUseCase.Params(page = 0))
                 Assert.fail("should not get in here")
             } catch (e: Exception) {
                 Assert.assertNotNull(e)
