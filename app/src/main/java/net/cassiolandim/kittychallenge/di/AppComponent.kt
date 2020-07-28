@@ -1,8 +1,8 @@
 package net.cassiolandim.kittychallenge.di
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dagger.BindsInstance
@@ -22,7 +22,7 @@ import javax.inject.Singleton
 )
 interface AppComponent {
 
-    val mainViewModel: MainViewModel
+    var mainViewModel: MainViewModel
 
     @Component.Factory
     interface Factory {
@@ -30,7 +30,7 @@ interface AppComponent {
     }
 }
 
-inline fun <reified T : ViewModel> AppCompatActivity.createActivityViewModel(crossinline factory: () -> T): T =
+inline fun <reified T : ViewModel> FragmentActivity.createActivityViewModel(crossinline factory: () -> T): T =
     T::class.java.let { clazz ->
         ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -44,6 +44,6 @@ inline fun <reified T : ViewModel> AppCompatActivity.createActivityViewModel(cro
     }
 
 fun Fragment.createMainViewModel() =
-    (requireActivity() as AppCompatActivity).createActivityViewModel {
+    requireActivity().createActivityViewModel {
         (requireActivity().application as MyApplication).appComponent.mainViewModel
     }
