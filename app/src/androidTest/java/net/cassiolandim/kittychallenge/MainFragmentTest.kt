@@ -19,7 +19,7 @@ class MainFragmentTest {
     fun given_When_first_displayed_Should_show_progress() {
         val mainViewModel = mockk<MainViewModel>()
         val app = ApplicationProvider.getApplicationContext<MyApplication>()
-        app.appComponent.mainViewModel = mainViewModel
+        app.appComponent.mainViewModel = mainViewModel // TODO var??
 
         val scenario = launchFragmentInContainer<MainFragment>()
         onView(withId(R.id.progressLayout)).check(matches(isDisplayed()))

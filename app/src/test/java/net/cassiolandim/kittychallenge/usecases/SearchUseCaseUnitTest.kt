@@ -1,5 +1,6 @@
-package net.cassiolandim.kittychallenge
+package net.cassiolandim.kittychallenge.usecases
 
+import io.mockk.MockKAnnotations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
@@ -7,6 +8,7 @@ import net.cassiolandim.kittychallenge.domain.KittenDomainModel
 import net.cassiolandim.kittychallenge.repository.KittensRepository
 import net.cassiolandim.kittychallenge.ui.usecases.SearchUseCase
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -21,6 +23,11 @@ class SearchUseCaseUnitTest {
 
     @Mock
     lateinit var kittensRepository: KittensRepository
+
+    @Before
+    fun setup() {
+        MockKAnnotations.init(this)
+    }
 
     @Test
     fun `Given repository is ok When searching Should return success`() {

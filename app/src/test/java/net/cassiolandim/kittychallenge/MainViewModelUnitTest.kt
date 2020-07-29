@@ -1,6 +1,6 @@
 package net.cassiolandim.kittychallenge
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule // TODO verificar pacote
 import androidx.lifecycle.Observer
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
