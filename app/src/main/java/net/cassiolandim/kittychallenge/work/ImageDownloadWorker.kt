@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.cassiolandim.kittychallenge.copyInputStreamToFile
@@ -31,11 +32,15 @@ class ImageDownloadWorker(private val appContext: Context, workerParams: WorkerP
 
             Timber.d("Downloading image #$url")
 
-            val request = Request.Builder().url(url).build()
-            val response = OkHttpClient.Builder().build().newCall(request).execute()
-            response.body?.let{ body ->
-                File(outputDirectory, "$favoriteId.jpg")
-                    .copyInputStreamToFile(body.byteStream())
+            try {
+                val request = Request.Builder().url(url).build()
+                val response = OkHttpClient.Builder().build().newCall(request).execute()
+                response.body?.let{ body ->
+                    File(outputDirectory, "$favoriteId.jpg")
+                        .copyInputStreamToFile(body.byteStream())
+                }
+            } catch (e: Exception) {
+                return@withContext Result.failure()
             }
 
             Intent().also { intent ->

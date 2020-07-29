@@ -18,7 +18,7 @@ import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
-class SimpleEntityReadWriteTest {
+class FavoritesDaoTest {
 
     private val testDispatcher = TestCoroutineDispatcher()
     private val testScope = TestCoroutineScope(testDispatcher)
@@ -45,7 +45,7 @@ class SimpleEntityReadWriteTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeUserAndReadInList() {
+    fun insertFavoriteAndReadInList() {
         testScope.runBlockingTest {
             val model = FavoriteDatabaseModel(
                 id = "id1",
