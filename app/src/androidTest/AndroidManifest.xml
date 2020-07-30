@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.package">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.cassiolandim.kittychallenge">
 
-    <application android:extractNativeLibs="true" />
+    <application
+        tools:ignore="GoogleAppIndexingWarning"
+        android:extractNativeLibs="true">
+    </application>
+
 </manifest>

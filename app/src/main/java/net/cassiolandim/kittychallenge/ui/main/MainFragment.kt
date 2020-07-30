@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.main_fragment.*
+import net.cassiolandim.kittychallenge.OpenForTesting
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.MainFragmentBinding
 import net.cassiolandim.kittychallenge.di.createMainViewModel
@@ -19,25 +20,20 @@ import net.cassiolandim.kittychallenge.network.Status
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 
+@OpenForTesting
 class MainFragment : Fragment() {
 
-    private lateinit var viewModel: MainViewModel
+    lateinit var viewModel: MainViewModel
     private lateinit var adapter : KittensAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = createMainViewModel().also {
-            adapter = KittensAdapter(it.kittenList) { kitten : KittenUiModel ->
-                if (kitten.isFavorite) {
-                    viewModel.saveFavorite(kitten.id, kitten.url)
-                } else {
-                    kitten.favoriteId?.let { id ->
-                        viewModel.deleteFavorite(id, requireContext().getOutputDirectory())
-                    }
-                }
-            }
-            it.firstPageSearch()
-        }
+        attachViewModel()
+        viewModel.firstPageSearch()
+    }
+
+    fun attachViewModel() {
+        viewModel = createMainViewModel()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,9 +62,19 @@ class MainFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext()).also {
             it.orientation = LinearLayoutManager.VERTICAL
         }
-        recyclerView.adapter = adapter
 
         with(viewModel) {
+            adapter = KittensAdapter(kittenList) { kitten : KittenUiModel ->
+                if (kitten.isFavorite) {
+                    viewModel.saveFavorite(kitten.id, kitten.url)
+                } else {
+                    kitten.favoriteId?.let { id ->
+                        viewModel.deleteFavorite(id, requireContext().getOutputDirectory())
+                    }
+                }
+            }
+            recyclerView.adapter = adapter
+
             networkState.observe(viewLifecycleOwner, Observer {
                 when(it.status) {
                     Status.RUNNING -> {

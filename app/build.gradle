@@ -4,6 +4,12 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'jacoco'
+apply plugin: 'kotlin-allopen'
+
+allOpen {
+    // allows mocking for classes w/o directly opening them for release builds
+    annotation 'net.cassiolandim.kittychallenge.OpenClass'
+}
 
 android {
     compileSdkVersion 29
@@ -16,7 +22,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "net.cassiolandim.kittychallenge.MockTestRunner"
     }
 
     buildTypes {
@@ -44,6 +50,8 @@ android {
         exclude 'org/apache/maven/project/pom-4.0.0.xml'
         exclude 'org/cyberneko/html/res/HTMLlat1.properties'
     }
+
+    sourceSets { main { res.srcDirs = ['src/main/res', 'src/androidTest/res'] } }
 }
 
 dependencies {
@@ -63,6 +71,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.3.1'
     testImplementation "io.mockk:mockk:1.10.0"
 
+    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.4'
     androidTestImplementation "io.mockk:mockk-android:1.10.0"
 
@@ -142,6 +151,11 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
                       '**/BuildConfig.*',
                       '**/Manifest*.*',
                       '**/*Test*.*',
+                      '**/Dagger*Component.class',
+                      '**/Dagger*Component$Builder.class',
+                      '**/*_*Factory.class',
+                      '**/*ComponentImpl.class',
+                      '**/*SubComponentBuilder.class',
                       'android/**/*.*',
                       '**/MyApplication*.*',
                       '**/di/']

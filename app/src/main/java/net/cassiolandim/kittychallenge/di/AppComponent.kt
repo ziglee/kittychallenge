@@ -22,7 +22,7 @@ import javax.inject.Singleton
 )
 interface AppComponent {
 
-    var mainViewModel: MainViewModel
+    val mainViewModel: MainViewModel
 
     @Component.Factory
     interface Factory {

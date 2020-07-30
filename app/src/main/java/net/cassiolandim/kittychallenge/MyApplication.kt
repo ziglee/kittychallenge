@@ -5,9 +5,9 @@ import net.cassiolandim.kittychallenge.di.AppComponent
 import net.cassiolandim.kittychallenge.di.DaggerAppComponent
 import timber.log.Timber
 
-class MyApplication : Application() {
+open class MyApplication : Application() {
 
-    val appComponent: AppComponent by lazy {
+    open val appComponent: AppComponent by lazy {
         DaggerAppComponent.factory().create(applicationContext)
     }
 
