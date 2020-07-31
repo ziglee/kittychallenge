@@ -6,6 +6,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.network.NetworkState
@@ -211,7 +212,7 @@ class MainViewModelUnitTest {
     @Test
     fun `Given a kitten When deleting favorite Should return update its model`() {
         testCoroutineRule.runBlockingTest {
-            val baseDirectory = File("")
+            val baseDirectory = mockk<File>()
             val params = DeleteFavoriteUseCase.Params(
                 id = "kitten1",
                 baseDirectory = baseDirectory
