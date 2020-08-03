@@ -39,7 +39,7 @@ class SearchUseCaseUnitTest {
                 )
             )
 
-            every { kittensRepository.favoritesInMemoryCache } returns mutableListOf<FavoriteDomainModel>()
+            every { kittensRepository.favoritesInMemoryCache } returns mutableListOf()
 
             // Performing usecase
             val params = SearchUseCase.Params(
