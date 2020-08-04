@@ -16,27 +16,43 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.favorites_fragment.*
+import net.cassiolandim.kittychallenge.OpenForTesting
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.FavoritesFragmentBinding
 import net.cassiolandim.kittychallenge.di.createMainViewModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 
+@OpenForTesting
 class FavoritesFragment : Fragment() {
 
-    private lateinit var viewModel: MainViewModel
-    private val adapter = FavoritesAdapter { id ->
-        viewModel.deleteFavorite(id, requireContext().getOutputDirectory())
+    lateinit var viewModel: MainViewModel
+    private lateinit var adapter : FavoritesAdapter
+
+    private val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val favoriteId = intent.getStringExtra(EXTRA_FAVORITE_ID)!!
+            adapter.notifyItemChangedByFavoriteId(favoriteId)
+        }
     }
-    private val broadcastReceiver = ImageDownloadedBroadcastReceiver(adapter)
+
+    companion object {
+        const val ACTION = "net.cassiolandim.kittychallenge.IMAGE_DOWNLOADED"
+        const val EXTRA_FAVORITE_ID = "EXTRA_FAVORITE_ID"
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = createMainViewModel()
 
-        val filter = IntentFilter(ImageDownloadedBroadcastReceiver.ACTION)
+        attachViewModel()
+
+        val filter = IntentFilter(ACTION)
         LocalBroadcastManager.getInstance(context)
             .registerReceiver(broadcastReceiver, filter)
+    }
+
+    fun attachViewModel() {
+        viewModel = createMainViewModel()
     }
 
     override fun onDestroy() {
@@ -71,9 +87,13 @@ class FavoritesFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext()).also {
             it.orientation = LinearLayoutManager.VERTICAL
         }
-        recyclerView.adapter = adapter
 
         with(viewModel) {
+            adapter = FavoritesAdapter { id ->
+                viewModel.deleteFavorite(id, requireContext().getOutputDirectory())
+            }
+            recyclerView.adapter = adapter
+
             favorites.observe(viewLifecycleOwner, Observer {
                 adapter.submitList(it)
                 if (it.isEmpty()) {
@@ -93,18 +113,5 @@ class FavoritesFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-}
-
-class ImageDownloadedBroadcastReceiver(private val adapter: FavoritesAdapter) : BroadcastReceiver() {
-
-    companion object {
-        const val ACTION = "net.cassiolandim.kittychallenge.IMAGE_DOWNLOADED"
-        const val EXTRA_FAVORITE_ID = "EXTRA_FAVORITE_ID"
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        val favoriteId = intent.getStringExtra(EXTRA_FAVORITE_ID)!!
-        adapter.notifyItemChangedByFavoriteId(favoriteId)
     }
 }

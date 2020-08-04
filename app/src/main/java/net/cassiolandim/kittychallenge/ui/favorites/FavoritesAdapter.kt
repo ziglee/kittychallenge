@@ -50,7 +50,6 @@ class FavoritesAdapter(
             if (indexOf >= 0) notifyItemChanged(indexOf)
         }
     }
-
 }
 
 class KittenViewHolder(

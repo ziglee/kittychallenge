@@ -5,12 +5,11 @@ import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.cassiolandim.kittychallenge.copyInputStreamToFile
 import net.cassiolandim.kittychallenge.getOutputDirectory
-import net.cassiolandim.kittychallenge.ui.favorites.ImageDownloadedBroadcastReceiver
+import net.cassiolandim.kittychallenge.ui.favorites.FavoritesFragment
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import timber.log.Timber
@@ -44,8 +43,8 @@ class ImageDownloadWorker(private val appContext: Context, workerParams: WorkerP
             }
 
             Intent().also { intent ->
-                intent.action = ImageDownloadedBroadcastReceiver.ACTION
-                intent.putExtra(ImageDownloadedBroadcastReceiver.EXTRA_FAVORITE_ID, favoriteId)
+                intent.action = FavoritesFragment.ACTION
+                intent.putExtra(FavoritesFragment.EXTRA_FAVORITE_ID, favoriteId)
                 LocalBroadcastManager.getInstance(appContext).sendBroadcast(intent)
             }
 

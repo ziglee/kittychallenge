@@ -54,7 +54,7 @@ class MainFragmentTest {
     }
 
     @Test
-    fun given_network_ok_When_loading_Should_show_progress() {
+    fun given_network_loading_When_loading_Should_show_progress() {
         /* Given */
         networkState.postValue(NetworkState.LOADING)
 
@@ -65,6 +65,20 @@ class MainFragmentTest {
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
         onView(withId(R.id.progressLayout)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun given_network_success_When_loading_Should_not_show_progress() {
+        /* Given */
+        networkState.postValue(NetworkState.LOADED)
+
+        /* When */
+        launchFragmentInContainer<CustomMainFragment>(factory = fragmentFactory)
+
+        /* Then */
+        onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
+        onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.progressLayout)).check(matches(not(isDisplayed())))
     }
 
     @Test

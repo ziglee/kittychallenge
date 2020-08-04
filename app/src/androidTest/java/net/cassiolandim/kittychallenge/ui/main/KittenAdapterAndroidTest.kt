@@ -11,7 +11,7 @@ import org.junit.Test
 class KittenAdapterAndroidTest {
 
     @Test
-    fun getItemAtPosition() {
+    fun bind_view_holder() {
         val list = listOf(
             KittenUiModel(id = "id1", url = "url1"),
             KittenUiModel(id =  "id2", url = "url2", isFavorite = true, favoriteId = "id2")
@@ -24,9 +24,10 @@ class KittenAdapterAndroidTest {
 
         scenario.onActivity { activity ->
             val viewHolder = adapter.onCreateViewHolder(FrameLayout(activity), 0)
-            adapter.onBindViewHolder(viewHolder, 0)
-
             Assert.assertNotNull(viewHolder)
+
+            adapter.onBindViewHolder(viewHolder, 0)
+            adapter.onBindViewHolder(viewHolder, 1)
         }
     }
 }
