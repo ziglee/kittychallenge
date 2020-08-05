@@ -5,6 +5,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'jacoco'
 apply plugin: 'kotlin-allopen'
+apply plugin: "org.sonarqube"
 
 jacoco {
     toolVersion = '0.8.5'
@@ -190,4 +191,19 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
             'jacoco/testDebugUnitTest.exec',
             'outputs/code_coverage/debugAndroidTest/connected/**/*.ec'
     ])
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectName', 'kittychallenge'
+        property "sonar.projectKey", "kittychallenge"
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.exclusions", '**/*Test*/**,' +
+                '*.json,' +
+                '**/*test*/**,' +
+                '**/.gradle/**,' +
+                '**/R.class'
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+        property "sonar.java.coveragePlugin", "jacoco"
+    }
 }

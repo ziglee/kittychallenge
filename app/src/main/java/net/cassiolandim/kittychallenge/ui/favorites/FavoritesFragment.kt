@@ -75,7 +75,7 @@ class FavoritesFragment : Fragment() {
             false
         ) as FavoritesFragmentBinding).apply {
             lifecycleOwner = this@FavoritesFragment
-            viewModel = viewModel
+            viewModel = this@FavoritesFragment.viewModel
             return root
         }
     }

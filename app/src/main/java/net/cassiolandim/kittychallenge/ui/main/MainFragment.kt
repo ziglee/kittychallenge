@@ -50,7 +50,7 @@ class MainFragment : Fragment() {
             false
         ) as MainFragmentBinding).apply {
             lifecycleOwner = this@MainFragment
-            viewModel = viewModel
+            viewModel = this@MainFragment.viewModel
             return root
         }
     }
