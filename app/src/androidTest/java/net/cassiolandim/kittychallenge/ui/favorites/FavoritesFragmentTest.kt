@@ -4,18 +4,26 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.MutableLiveData
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import net.cassiolandim.kittychallenge.MyTestApplication
+import net.cassiolandim.kittychallenge.PerformClickViewWithIdAction
 import net.cassiolandim.kittychallenge.R
+import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.network.NetworkState
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
+import net.cassiolandim.kittychallenge.ui.main.KittenViewHolder
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 import org.hamcrest.CoreMatchers
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,5 +115,35 @@ class FavoritesFragmentTest {
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(ViewMatchers.withId(R.id.emptyStateMessage))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun given_list_of_favorites_When_click_to_unfavorite_Should_delete() {
+        /* Given */
+        val app = ApplicationProvider.getApplicationContext<MyTestApplication>()
+        val baseDirectory = app.getOutputDirectory()
+        val item = FavoriteUiModel(
+            id = "id1",
+            imageId = "img1"
+        )
+
+        every { viewModel.deleteFavorite(item.id, baseDirectory) } returns Unit
+
+        favorites.postValue(listOf(
+            item
+        ))
+
+        /* When */
+        launchFragmentInContainer<CustomFavoritesFragment>(
+            themeResId = R.style.AppTheme,
+            factory = fragmentFactory
+        )
+
+        /* Then */
+        Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<KittenViewHolder>(0,
+                PerformClickViewWithIdAction(R.id.deleteLayout)))
+
+        verify { viewModel.deleteFavorite(item.id, baseDirectory) }
     }
 }
