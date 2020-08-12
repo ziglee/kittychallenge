@@ -11,22 +11,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.favorites_fragment.*
 import net.cassiolandim.kittychallenge.OpenForTesting
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.FavoritesFragmentBinding
-import net.cassiolandim.kittychallenge.di.createMainViewModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 
 @OpenForTesting
+@AndroidEntryPoint
 class FavoritesFragment : Fragment() {
 
-    lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter : FavoritesAdapter
 
     private val broadcastReceiver = object : BroadcastReceiver() {
@@ -43,16 +45,9 @@ class FavoritesFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
-        attachViewModel()
-
         val filter = IntentFilter(ACTION)
         LocalBroadcastManager.getInstance(context)
             .registerReceiver(broadcastReceiver, filter)
-    }
-
-    fun attachViewModel() {
-        viewModel = createMainViewModel()
     }
 
     override fun onDestroy() {

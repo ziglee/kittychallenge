@@ -1,5 +1,6 @@
 package net.cassiolandim.kittychallenge.ui
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,9 +10,8 @@ import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 import net.cassiolandim.kittychallenge.ui.usecases.*
 import timber.log.Timber
 import java.io.File
-import javax.inject.Inject
 
-class MainViewModel @Inject constructor(
+class MainViewModel @ViewModelInject constructor(
     private val favoritesUseCase: FavoritesUseCase,
     private val searchUseCase: SearchUseCase,
     private val saveFavoriteUseCase: SaveFavoriteUseCase,
@@ -39,6 +39,7 @@ class MainViewModel @Inject constructor(
 
     init {
         fetchFavorites()
+        firstPageSearch()
     }
 
     fun firstPageSearch() {

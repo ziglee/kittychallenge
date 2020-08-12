@@ -6,35 +6,27 @@ import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
 import net.cassiolandim.kittychallenge.OpenForTesting
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.MainFragmentBinding
-import net.cassiolandim.kittychallenge.di.createMainViewModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.network.Status
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 
 @OpenForTesting
+@AndroidEntryPoint
 class MainFragment : Fragment() {
 
-    lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter : KittensAdapter
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        attachViewModel()
-        viewModel.firstPageSearch()
-    }
-
-    fun attachViewModel() {
-        viewModel = createMainViewModel()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -3,6 +3,8 @@ package net.cassiolandim.kittychallenge.di
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
 import io.reactivex.schedulers.Schedulers
 import net.cassiolandim.kittychallenge.BuildConfig
 import net.cassiolandim.kittychallenge.network.TheCatApiService
@@ -14,6 +16,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
+@InstallIn(ApplicationComponent::class)
 object NetworkModule {
 
     @Provides
