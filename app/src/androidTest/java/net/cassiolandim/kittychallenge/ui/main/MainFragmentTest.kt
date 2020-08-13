@@ -17,14 +17,13 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.cassiolandim.kittychallenge.MyApplication
-import net.cassiolandim.kittychallenge.PerformClickViewWithIdAction
-import net.cassiolandim.kittychallenge.R
+import net.cassiolandim.kittychallenge.*
 import net.cassiolandim.kittychallenge.di.KittensModule
-import net.cassiolandim.kittychallenge.getOutputDirectory
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.network.NetworkState
 import net.cassiolandim.kittychallenge.repository.KittensRepository
 import net.cassiolandim.kittychallenge.ui.MainActivityTestRule
@@ -60,11 +59,6 @@ class MainFragmentTest {
     private val deletedFavoriteIndex = MutableLiveData<Int>()
     private val favorites = MutableLiveData<List<FavoriteUiModel>>()
 
-    @BindValue
-    @JvmField
-    val repository: KittensRepository = mockk()
-
-    /*
     @Module
     @InstallIn(ApplicationComponent::class)
     object TestModule {
@@ -72,31 +66,26 @@ class MainFragmentTest {
         @Singleton
         @Provides
         fun providesKittensRepository(): KittensRepository {
-            return mockk()
+            val repository = mockk<KittensRepository>()
+            coEvery { repository.favoritesLocal() } returns listOf(
+                FavoriteDomainModel(
+                    id = "id1",
+                    imageId = "img1"
+                )
+            )
+            val app = ApplicationProvider.getApplicationContext<BaseApplication>()
+            val baseDirectory = app.getOutputDirectory()
+            coEvery {
+                repository.deleteFavorite("id1", baseDirectory = baseDirectory)
+            } returns Unit
+
+            return repository
         }
     }
-    */
 
     @Before
     fun setUp() {
         hiltRule.inject()
-
-        viewModel = mockk()
-        every { viewModel.networkState } returns networkState
-        every { viewModel.kittens } returns kittens
-        every { viewModel.savedFavoriteIndex } returns savedFavoriteIndex
-        every { viewModel.deletedFavoriteIndex } returns deletedFavoriteIndex
-        every { viewModel.favorites } returns favorites
-        every { viewModel.firstPageSearch() } returns Unit
-        every { viewModel.kittenList } returns mutableListOf()
-
-        //fragment.viewModel = viewModel
-
-        fragmentFactory = object : FragmentFactory() {
-            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
-                return fragment
-            }
-        }
     }
 
     @Test
