@@ -2,7 +2,6 @@ package net.cassiolandim.kittychallenge.ui.favorites
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -10,31 +9,51 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.cassiolandim.kittychallenge.MyTestApplication
-import net.cassiolandim.kittychallenge.PerformClickViewWithIdAction
-import net.cassiolandim.kittychallenge.R
-import net.cassiolandim.kittychallenge.getOutputDirectory
+import net.cassiolandim.kittychallenge.*
+import net.cassiolandim.kittychallenge.di.KittensModule
 import net.cassiolandim.kittychallenge.network.NetworkState
+import net.cassiolandim.kittychallenge.repository.KittensRepository
+import net.cassiolandim.kittychallenge.ui.MainActivityTestRule
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
 import net.cassiolandim.kittychallenge.ui.main.KittenViewHolder
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 import org.hamcrest.CoreMatchers
-import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import javax.inject.Singleton
 
+@HiltAndroidTest
+@UninstallModules(KittensModule::class)
 @RunWith(AndroidJUnit4::class)
 class FavoritesFragmentTest {
+
+    @get:Rule(order = 0)
+    var hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    var activityRule = MainActivityTestRule(R.id.navigation_favorites)
+
+    @BindValue
+    lateinit var repository: KittensRepository
 
     private lateinit var viewModel: MainViewModel
     private lateinit var fragmentFactory: FragmentFactory
 
-    private val fragment = CustomFavoritesFragment()
+    private val fragment = FavoritesFragment()
     private val networkState = MutableLiveData<NetworkState>()
     private val kittens = MutableLiveData<List<KittenUiModel>>()
     private val savedFavoriteIndex = MutableLiveData<Int>()
@@ -43,6 +62,8 @@ class FavoritesFragmentTest {
 
     @Before
     fun setUp() {
+        hiltRule.inject()
+
         viewModel = mockk()
         every { viewModel.networkState } returns networkState
         every { viewModel.kittens } returns kittens
@@ -52,7 +73,7 @@ class FavoritesFragmentTest {
         every { viewModel.firstPageSearch() } returns Unit
         every { viewModel.kittenList } returns mutableListOf()
 
-        fragment.viewModel = viewModel
+        //fragment.viewModel = viewModel
 
         fragmentFactory = object : FragmentFactory() {
             override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
@@ -65,9 +86,6 @@ class FavoritesFragmentTest {
     fun given_network_ok_When_loading_Should_show_progress() {
         /* Given */
         networkState.postValue(NetworkState.LOADING)
-
-        /* When */
-        launchFragmentInContainer<CustomFavoritesFragment>(factory = fragmentFactory)
 
         /* Then */
         Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
@@ -86,11 +104,6 @@ class FavoritesFragmentTest {
             )
         ))
 
-        /* When */
-        launchFragmentInContainer<CustomFavoritesFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory)
-
         /* Then */
         Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -105,11 +118,6 @@ class FavoritesFragmentTest {
             emptyList()
         )
 
-        /* When */
-        launchFragmentInContainer<CustomFavoritesFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory)
-
         /* Then */
         Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -119,8 +127,9 @@ class FavoritesFragmentTest {
 
     @Test
     fun given_list_of_favorites_When_click_to_unfavorite_Should_delete() {
+
         /* Given */
-        val app = ApplicationProvider.getApplicationContext<MyTestApplication>()
+        val app = ApplicationProvider.getApplicationContext<BaseApplication>()
         val baseDirectory = app.getOutputDirectory()
         val item = FavoriteUiModel(
             id = "id1",
@@ -132,12 +141,6 @@ class FavoritesFragmentTest {
         favorites.postValue(listOf(
             item
         ))
-
-        /* When */
-        launchFragmentInContainer<CustomFavoritesFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
 
         /* Then */
         Espresso.onView(ViewMatchers.withId(R.id.recyclerView))

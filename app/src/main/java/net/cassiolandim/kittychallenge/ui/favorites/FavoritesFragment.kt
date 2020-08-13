@@ -18,13 +18,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.favorites_fragment.*
-import net.cassiolandim.kittychallenge.OpenForTesting
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.FavoritesFragmentBinding
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 
-@OpenForTesting
 @AndroidEntryPoint
 class FavoritesFragment : Fragment() {
 

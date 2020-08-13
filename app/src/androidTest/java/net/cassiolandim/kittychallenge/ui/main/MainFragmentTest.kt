@@ -2,7 +2,6 @@ package net.cassiolandim.kittychallenge.ui.main
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -10,38 +9,78 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.cassiolandim.kittychallenge.MyTestApplication
+import net.cassiolandim.kittychallenge.MyApplication
 import net.cassiolandim.kittychallenge.PerformClickViewWithIdAction
 import net.cassiolandim.kittychallenge.R
+import net.cassiolandim.kittychallenge.di.KittensModule
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.network.NetworkState
+import net.cassiolandim.kittychallenge.repository.KittensRepository
+import net.cassiolandim.kittychallenge.ui.MainActivityTestRule
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert
+import org.junit.Rule
+import org.junit.runner.RunWith
+import javax.inject.Singleton
 
+@HiltAndroidTest
+@UninstallModules(KittensModule::class)
 @RunWith(AndroidJUnit4::class)
 class MainFragmentTest {
+
+    @get:Rule(order = 0)
+    var hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    var activityRule = MainActivityTestRule(R.id.navigation_main)
 
     private lateinit var viewModel: MainViewModel
     private lateinit var fragmentFactory: FragmentFactory
 
-    private val fragment = CustomMainFragment()
+    private val fragment = MainFragment()
     private val networkState = MutableLiveData<NetworkState>()
     private val kittens = MutableLiveData<List<KittenUiModel>>()
     private val savedFavoriteIndex = MutableLiveData<Int>()
     private val deletedFavoriteIndex = MutableLiveData<Int>()
     private val favorites = MutableLiveData<List<FavoriteUiModel>>()
 
+    @BindValue
+    @JvmField
+    val repository: KittensRepository = mockk()
+
+    /*
+    @Module
+    @InstallIn(ApplicationComponent::class)
+    object TestModule {
+
+        @Singleton
+        @Provides
+        fun providesKittensRepository(): KittensRepository {
+            return mockk()
+        }
+    }
+    */
+
     @Before
     fun setUp() {
+        hiltRule.inject()
+
         viewModel = mockk()
         every { viewModel.networkState } returns networkState
         every { viewModel.kittens } returns kittens
@@ -51,7 +90,7 @@ class MainFragmentTest {
         every { viewModel.firstPageSearch() } returns Unit
         every { viewModel.kittenList } returns mutableListOf()
 
-        fragment.viewModel = viewModel
+        //fragment.viewModel = viewModel
 
         fragmentFactory = object : FragmentFactory() {
             override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
@@ -65,12 +104,6 @@ class MainFragmentTest {
         /* Given */
         networkState.postValue(NetworkState.LOADING)
 
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
-
         /* Then */
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
@@ -82,12 +115,6 @@ class MainFragmentTest {
         /* Given */
         networkState.postValue(NetworkState.LOADED)
 
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
-
         /* Then */
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
@@ -98,12 +125,6 @@ class MainFragmentTest {
     fun given_network_fail_When_request_returns_error_Should_show_empty_state() {
         /* Given */
         networkState.postValue(NetworkState.error(""))
-
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
 
         /* Then */
         onView(withId(R.id.emptyStateLayout)).check(matches(isDisplayed()))
@@ -121,12 +142,6 @@ class MainFragmentTest {
             )
         ))
 
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
-
         /* Then */
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
@@ -136,12 +151,6 @@ class MainFragmentTest {
     fun given_empty_list_of_kittens_When_searching_Should_show_empty_state() {
         /* Given */
         kittens.postValue(emptyList())
-
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
 
         /* Then */
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
@@ -167,12 +176,6 @@ class MainFragmentTest {
                 /* Given */
         kittens.postValue(list)
 
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
-
         /* Then */
         onView(withId(R.id.recyclerView))
             .perform(RecyclerViewActions.actionOnItemAtPosition<KittenViewHolder>(0, PerformClickViewWithIdAction(R.id.favoriteLayout)))
@@ -186,7 +189,7 @@ class MainFragmentTest {
 
     @Test
     fun given_list_of_kittens_When_click_to_unfavorite_Should_delete_favorite() {
-        val app = ApplicationProvider.getApplicationContext<MyTestApplication>()
+        val app = ApplicationProvider.getApplicationContext<MyApplication>()
         val baseDirectory = app.getOutputDirectory()
         val kitten = KittenUiModel(
             id = "id1",
@@ -205,12 +208,6 @@ class MainFragmentTest {
 
         /* Given */
         kittens.postValue(list)
-
-        /* When */
-        launchFragmentInContainer<CustomMainFragment>(
-            themeResId = R.style.AppTheme,
-            factory = fragmentFactory
-        )
 
         /* Then */
         onView(withId(R.id.recyclerView))

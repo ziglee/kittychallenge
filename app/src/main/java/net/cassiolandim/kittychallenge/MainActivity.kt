@@ -14,6 +14,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    companion object {
+        /** Key for an int extra defining the initial navigation target. */
+        const val EXTRA_NAVIGATION_ID = "extra.NAVIGATION_ID"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -24,6 +29,11 @@ class MainActivity : AppCompatActivity() {
         toolbar.setupWithNavController(navController, appBarConfiguration)
 
         setSupportActionBar(toolbar)
+
+        if (savedInstanceState == null) {
+            val initialNavId = intent.getIntExtra(EXTRA_NAVIGATION_ID, R.id.navigation_main)
+            navController.navigate(initialNavId)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

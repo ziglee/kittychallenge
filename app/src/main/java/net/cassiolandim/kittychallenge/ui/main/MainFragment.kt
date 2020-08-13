@@ -1,6 +1,5 @@
 package net.cassiolandim.kittychallenge.ui.main
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
-import net.cassiolandim.kittychallenge.OpenForTesting
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.databinding.MainFragmentBinding
 import net.cassiolandim.kittychallenge.getOutputDirectory
@@ -21,7 +19,6 @@ import net.cassiolandim.kittychallenge.network.Status
 import net.cassiolandim.kittychallenge.ui.MainViewModel
 import net.cassiolandim.kittychallenge.ui.main.model.KittenUiModel
 
-@OpenForTesting
 @AndroidEntryPoint
 class MainFragment : Fragment() {
 

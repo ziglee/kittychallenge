@@ -10,6 +10,6 @@ class MockTestRunner : AndroidJUnitRunner() {
         className: String?,
         context: Context?
     ): Application {
-        return super.newApplication(cl, MyTestApplication::class.qualifiedName, context)
+        return super.newApplication(cl, HiltTestApplication_Application::class.qualifiedName, context)
     }
 }
