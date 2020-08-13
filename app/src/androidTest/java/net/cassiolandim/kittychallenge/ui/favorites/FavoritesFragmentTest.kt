@@ -1,7 +1,7 @@
 package net.cassiolandim.kittychallenge.ui.favorites
 
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -18,10 +18,10 @@ import net.cassiolandim.kittychallenge.BaseApplication
 import net.cassiolandim.kittychallenge.PerformClickViewWithIdAction
 import net.cassiolandim.kittychallenge.R
 import net.cassiolandim.kittychallenge.di.KittensModule
+import net.cassiolandim.kittychallenge.domain.FavoriteDomainModel
 import net.cassiolandim.kittychallenge.getOutputDirectory
 import net.cassiolandim.kittychallenge.repository.KittensRepository
 import net.cassiolandim.kittychallenge.ui.MainActivityTestRule
-import net.cassiolandim.kittychallenge.ui.favorites.model.FavoriteUiModel
 import net.cassiolandim.kittychallenge.ui.main.KittenViewHolder
 import org.hamcrest.CoreMatchers
 import org.junit.Before
@@ -48,19 +48,22 @@ class FavoritesFragmentTest {
         @Singleton
         @Provides
         fun providesKittensRepository(): KittensRepository {
+            val app = ApplicationProvider.getApplicationContext<BaseApplication>()
+            val baseDirectory = app.getOutputDirectory()
+
             val repository = mockk<KittensRepository>()
-            coEvery { repository.favorites() } returns emptyList()
-            /*
-            coEvery { repository.favoritesInMemoryCache } returns mutableListOf()
-            coEvery { repository.search(0) } returns emptyList()
-            coEvery { repository.favoritesLocal() } returns emptyList()
-            coEvery {
-                repository.saveFavorite("imgid1", "url1")
-            } returns FavoriteDomainModel(
-                id = "id1",
-                imageId = "imgid1"
+
+            coEvery { repository.favoritesLocal() } returns listOf(
+                FavoriteDomainModel(
+                    id = "id1",
+                    imageId = "img1"
+                )
             )
-            */
+
+            coEvery {
+                repository.deleteFavorite("id1", baseDirectory = baseDirectory)
+            } returns Unit
+
             return repository
         }
     }
@@ -71,54 +74,20 @@ class FavoritesFragmentTest {
     }
 
     @Test
-    fun given_network_ok_When_loading_Should_show_progress() {
-        /* Given */
-
-        /* Then */
-        Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.emptyStateMessage))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-    }
-
-    @Test
     fun given_list_of_favorites_When_searching_Should_show_list() {
-        /* Given */
-
-        /* Then */
-        Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
+        onView(ViewMatchers.withId(R.id.recyclerView))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.emptyStateMessage))
+        onView(ViewMatchers.withId(R.id.emptyStateMessage))
             .check(ViewAssertions.matches(CoreMatchers.not(ViewMatchers.isDisplayed())))
     }
 
     @Test
-    fun given_empty_list_of_favorites_When_searching_Should_show_empty_state_message() {
-        /* Given */
-
-        /* Then */
-        Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.emptyStateMessage))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-    }
-
-    @Test
     fun given_list_of_favorites_When_click_to_unfavorite_Should_delete() {
-        /* Given */
-        val app = ApplicationProvider.getApplicationContext<BaseApplication>()
-        val baseDirectory = app.getOutputDirectory()
-        val item = FavoriteUiModel(
-            id = "id1",
-            imageId = "img1"
-        )
-
-        /* Then */
-        Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
+        onView(ViewMatchers.withId(R.id.recyclerView))
             .perform(RecyclerViewActions.actionOnItemAtPosition<KittenViewHolder>(0,
                 PerformClickViewWithIdAction(R.id.deleteLayout)
             ))
 
-        //coVerify { repository.deleteFavorite(item.id, baseDirectory) }
+        // verify
     }
 }
