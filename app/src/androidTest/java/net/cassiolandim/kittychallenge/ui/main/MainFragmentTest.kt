@@ -97,16 +97,10 @@ class MainFragmentTest {
     }
 
     @Test
-    fun given_network_success_When_loading_Should_not_show_progress() {
-        onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
-        onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.progressLayout)).check(matches(not(isDisplayed())))
-    }
-
-    @Test
     fun given_list_of_kittens_When_searching_Should_show_list() {
         onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.emptyStateLayout)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.progressLayout)).check(matches(not(isDisplayed())))
     }
 
     @Test
@@ -123,8 +117,10 @@ class MainFragmentTest {
     @Test
     fun given_list_of_kittens_When_click_to_unfavorite_Should_delete_favorite() {
         onView(withId(R.id.recyclerView))
-            .perform(RecyclerViewActions.actionOnItemAtPosition<KittenViewHolder>(0,
-                PerformClickViewWithIdAction(R.id.favoriteLayout)))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<KittenViewHolder>(
+                1,
+                PerformClickViewWithIdAction(R.id.favoriteLayout)
+            ))
 
         // verify
     }

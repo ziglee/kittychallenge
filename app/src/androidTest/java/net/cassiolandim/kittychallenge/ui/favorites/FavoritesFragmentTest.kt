@@ -1,10 +1,16 @@
 package net.cassiolandim.kittychallenge.ui.favorites
 
+import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.Module
 import dagger.Provides
@@ -13,7 +19,8 @@ import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.mockk
 import net.cassiolandim.kittychallenge.BaseApplication
 import net.cassiolandim.kittychallenge.PerformClickViewWithIdAction
 import net.cassiolandim.kittychallenge.R
@@ -24,6 +31,7 @@ import net.cassiolandim.kittychallenge.repository.KittensRepository
 import net.cassiolandim.kittychallenge.ui.MainActivityTestRule
 import net.cassiolandim.kittychallenge.ui.main.KittenViewHolder
 import org.hamcrest.CoreMatchers
+import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -75,19 +83,32 @@ class FavoritesFragmentTest {
 
     @Test
     fun given_list_of_favorites_When_searching_Should_show_list() {
-        onView(ViewMatchers.withId(R.id.recyclerView))
+        onView(withId(R.id.recyclerView))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        onView(ViewMatchers.withId(R.id.emptyStateMessage))
+        onView(withId(R.id.emptyStateMessage))
             .check(ViewAssertions.matches(CoreMatchers.not(ViewMatchers.isDisplayed())))
+        onView(withId(R.id.recyclerView)).check(RecyclerViewItemCountAssertion(1));
     }
 
     @Test
     fun given_list_of_favorites_When_click_to_unfavorite_Should_delete() {
-        onView(ViewMatchers.withId(R.id.recyclerView))
+        onView(withId(R.id.recyclerView))
             .perform(RecyclerViewActions.actionOnItemAtPosition<KittenViewHolder>(0,
                 PerformClickViewWithIdAction(R.id.deleteLayout)
             ))
 
         // verify
     }
+}
+
+class RecyclerViewItemCountAssertion(private val expectedCount: Int) : ViewAssertion {
+    override fun check(view: View, noViewFoundException: NoMatchingViewException?) {
+        if (noViewFoundException != null) {
+            throw noViewFoundException
+        }
+        val recyclerView: RecyclerView = view as RecyclerView
+        val adapter = recyclerView.adapter
+        assertThat(adapter?.itemCount, `is`(expectedCount))
+    }
+
 }
